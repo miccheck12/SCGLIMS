@@ -1,0 +1,9 @@
+{% if collaborators %}
+    <ul>
+    {% for c in collaborators %}
+        <li>{{ c.first_name }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No collaborators are available.</p>
+{% endif %}
