@@ -3,12 +3,13 @@ from django.contrib.contenttypes import generic
 
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     StorageLocation, Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
-    SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, Amplicon, SAG, PureCulture
+    SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
+    Amplicon, SAG, PureCulture, ReadFile
 
 standard_models = [Collaborator, Sample, SampleType, SampleLocation,
               StorageLocation, Protocol, QPCR,
               RTMDA, SAGPlate, SAGPlateDilution, SequencingRun,
-              Metagenome, Primer, Amplicon, SAG, PureCulture]
+              Metagenome, Primer, Amplicon, SAG, PureCulture, ReadFile]
 
 for model in standard_models:
     admin.site.register(model)

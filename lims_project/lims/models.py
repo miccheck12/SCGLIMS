@@ -14,15 +14,15 @@ class Collaborator(models.Model):
         return "%s %s" % (self.first_name, self.last_name)
 
 class SampleType(models.Model):
-    name = models.CharField(max_length=30)
-    description = models.TextField(blank=False)
+    name = models.CharField(max_length=30, unique=True)
+    description = models.TextField(blank=True)
 
     def __unicode__(self):
         return "%s" % (self.name)
 
 class SampleLocation(models.Model):
-    name = models.CharField(max_length=30)
-    description = models.TextField(blank=False)
+    name = models.CharField(max_length=30, unique=True)
+    description = models.TextField(blank=True)
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -38,23 +38,23 @@ class Sample(models.Model):
     uid = models.CharField("UID", max_length=20, unique=True)
 
     collaborator = models.ForeignKey(Collaborator)
-    sample_type = models.ForeignKey(SampleType)
-    sample_location = models.ForeignKey(SampleLocation)
-    storage_location = models.ForeignKey(StorageLocation)
+    sample_type = models.ForeignKey(SampleType, blank=True, null=True)
+    sample_location = models.ForeignKey(SampleLocation, blank=True, null=True)
+    storage_location = models.ForeignKey(StorageLocation, blank=True, null=True)
 
     temperature = models.DecimalField(u"Temperature \u00B0C", max_digits=10,
-        decimal_places=2)
-    ph = models.DecimalField(" pH", max_digits=10, decimal_places=2)
-    salinity = models.DecimalField("Salinity unit(?))", max_digits=10, decimal_places=2)
-    depth = models.DecimalField("Depth (m)", max_digits=10, decimal_places=2)
-    gps = models.CharField("GPS", max_length=30)
-    shipping_method = models.CharField(max_length=30)
-    storage_medium = models.CharField(max_length=30)
-    date_received = models.DateField()
+        decimal_places=2, blank=True, null=True)
+    ph = models.DecimalField(" pH", max_digits=10, decimal_places=2, blank=True, null=True)
+    salinity = models.DecimalField("Salinity unit(?))", max_digits=10, decimal_places=2, blank=True, null=True)
+    depth = models.DecimalField("Depth (m)", max_digits=10, decimal_places=2, blank=True, null=True)
+    gps = models.CharField("GPS", max_length=30, blank=True)
+    shipping_method = models.CharField(max_length=30, blank=True)
+    storage_medium = models.CharField(max_length=30, blank=True)
+    date_received = models.DateField(blank=True)
     biosafety_level = models.IntegerField(
-        choices=((1, 1), (2, 2), (3, 3), (4, 4)))
+        choices=((1, 1), (2, 2), (3, 3), (4, 4)), blank=True, null=True)
     status = models.CharField(max_length=8,
-        choices=(('new', 'new'), ('used', 'used'), ('finished','finished')))
+        choices=(('new', 'new'), ('used', 'used'), ('finished','finished')), blank=True, null=True)
     notes = models.TextField(blank=True)
 
     @property
