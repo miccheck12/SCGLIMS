@@ -1,19 +1,132 @@
 from django.contrib import admin
-from django.contrib.contenttypes import generic
 
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     StorageLocation, Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
     Amplicon, SAG, PureCulture, ReadFile
 
-standard_models = [Collaborator, Sample, SampleType, SampleLocation,
-              StorageLocation, Protocol, QPCR,
-              RTMDA, SAGPlate, SAGPlateDilution, SequencingRun,
-              Metagenome, Primer, Amplicon, SAG, PureCulture, ReadFile]
+standard_models = [SampleType, SampleLocation, StorageLocation, Protocol, QPCR,
+                   RTMDA, SequencingRun, Metagenome, Amplicon, SAG,
+                   PureCulture, ReadFile]
 
 for model in standard_models:
     admin.site.register(model)
 
+
+class SampleAdmin(admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'barcode',
+        'collaborator',
+        'sample_type',
+        'sample_location',
+        'gps',
+        'temperature',
+        'ph',
+        'salinity',
+        'depth',
+        'shipping_method',
+        'storage_location',
+        'storage_medium',
+        'biosafety_level',
+        'status',
+        'notes'
+    ]
+admin.site.register(Sample, SampleAdmin)
+
+class CollaboratorAdmin(admin.ModelAdmin):
+    list_display = [
+        'first_name',
+        'last_name',
+        'institution',
+        'phone',
+        'email'
+    ]
+admin.site.register(Collaborator, CollaboratorAdmin)
+
+class ExtractedCellAdmin(admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'barcode',
+        'sample',
+        'protocol',
+        'replicate_number',
+        'protocol',
+        'storage_location',
+        'notes'
+    ]
+    readonly_fields = ('replicate_number',)
+admin.site.register(ExtractedCell, ExtractedCellAdmin)
+
+class ExtractedDNAAdmin(admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'barcode',
+        'sample',
+        'protocol',
+        'replicate_number',
+        'protocol',
+        'storage_location',
+        'notes'
+    ]
+    readonly_fields = ('replicate_number',)
+admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
+
+class SAGPlateAdmin(admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'barcode',
+        'extracted_cell',
+        'storage_location',
+        'protocol',
+        'report',
+        'qpcr',
+        'rt_mda',
+        'notes',
+    ]
+admin.site.register(SAGPlate, SAGPlateAdmin)
+
+class SAGPlateDilutionAdmin(admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'barcode',
+        'sag_plate',
+        'qpcr',
+        'dilution',
+    ]
+admin.site.register(SAGPlateDilution, SAGPlateDilutionAdmin)
+
+class DNALibraryAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'amplicon',
+        'metagenome',
+        'sag',
+        'pure_culture',
+        'buffer',
+        'i7',
+        'i5',
+        'sample_name_on_platform',
+        'storage_location',
+    ]
+admin.site.register(DNALibrary, DNALibraryAdmin)
+
+class PrimerAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'concentration',
+        'tmelt',
+        'storage_location',
+        'stock',
+    ]
+admin.site.register(Primer, PrimerAdmin):
+
+class MetagenomeAdmin(admin.ModelAdmin):
+    list_display = [
+        '',
+    ]
+
+# DEPRECATED -->
 class DNALibraryAdmin(admin.ModelAdmin):
     exclude = ('content_type',)
 
@@ -26,9 +139,9 @@ class DNALibraryAdmin(admin.ModelAdmin):
                 kwargs['blank'] = False
             return super(DNALibraryAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
 
-class ExtractedCellAdmin(admin.ModelAdmin):
-    readonly_fields = ('replicate_number',)
-
-admin.site.register(DNALibrary, DNALibraryAdmin)
-admin.site.register(ExtractedCell, ExtractedCellAdmin)
-admin.site.register(ExtractedDNA, ExtractedCellAdmin)
+def generate_all_fields_admin(classname):
+        return type(classname.__name__ + "Admin", (admin.ModelAdmin,),
+                    {'list_display': ([name for name in classname._meta.get_all_field_names() if name \
+                    not in ['amplicon', 'extractedcell', 'extracteddna',
+                            'metagenome', 'id', 'uid','sample']])})
+# END DEPRECATED <--

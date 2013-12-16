@@ -38,8 +38,8 @@ class Sample(models.Model):
     uid = models.CharField("UID", max_length=20, unique=True)
 
     collaborator = models.ForeignKey(Collaborator)
-    sample_type = models.ForeignKey(SampleType, blank=True, null=True)
-    sample_location = models.ForeignKey(SampleLocation, blank=True, null=True)
+    sample_type = models.ForeignKey(SampleType)
+    sample_location = models.ForeignKey(SampleLocation)
     storage_location = models.ForeignKey(StorageLocation, blank=True, null=True)
 
     temperature = models.DecimalField(u"Temperature \u00B0C", max_digits=10,
@@ -84,9 +84,11 @@ class ExtractedCell(models.Model):
     def barcode(self):
         return "EC:%s" % str(self.uid)
 
-    @property
-    def uid(self):
+    # @property decorator does not work with short_description
+    def get_uid(self):
         return "%s_%s" % (self.sample.uid, self.replicate_number)
+    get_uid.short_description = "UID"
+    uid = property(get_uid)
 
     def save(self):
         self.replicate_number = ExtractedCell.objects.filter(sample=self.sample.id).count() + 1
@@ -107,9 +109,10 @@ class ExtractedDNA(models.Model):
     def barcode(self):
         return "ED:" + str(self.uid)
 
-    @property
-    def uid(self):
+    def get_uid(self):
         return "%s_%s" % (self.sample.uid, self.replicate_number)
+    get_uid.short_description = "UID"
+    uid = property(get_uid)
 
     def save(self):
         """Saves and checks whether either Sample or ExtractedCell is provided.
@@ -186,10 +189,11 @@ class SAGPlate(models.Model):
         # covert index to [A-Z]
         return chr(ord('A') + rep)
 
-    @property
-    def uid(self):
+    def get_uid(self):
         return self.extracted_cell.sample.uid + \
             self.get_alphaindex_grouped_by_sample()
+    get_uid.short_description = "UID"
+    uid = property(get_uid)
 
     def save(self):
         if self.get_count_grouped_by_sample() > 25:
@@ -235,10 +239,11 @@ class SAGPlateDilution(models.Model):
 
         return result
 
-    @property
-    def uid(self):
+    def get_uid(self):
         return self.sag_plate.extracted_cell.sample.uid + \
             self.get_alphaindex_grouped_by_sample()
+    get_uid.short_description = "UID"
+    uid = property(get_uid)
 
     def save(self):
         if self.get_count_grouped_by_sample() > 35:
@@ -254,8 +259,13 @@ class SAGPlateDilution(models.Model):
 
 class Metagenome(models.Model):
     extracted_dna = models.ForeignKey(ExtractedDNA)
-    sample = models.ForeignKey(Sample)
     diversity_report = models.CharField(max_length=100)
+
+    def get_uid(self):
+        return self.extracted_dna.sample.uid + "A" + \
+            self.get_alphaindex_grouped_by_sample()
+    get_uid.short_description = "UID"
+    uid = property(get_uid)
 
 class Primer(models.Model):
     sequence = models.TextField()
@@ -269,7 +279,6 @@ class Primer(models.Model):
 
 class Amplicon(models.Model):
     extracted_dna = models.ForeignKey(ExtractedDNA)
-    sample = models.ForeignKey(Sample)
     diversity_report = models.CharField(max_length=100)
     buffer = models.CharField(max_length=100)
     notes = models.TextField()
@@ -294,10 +303,11 @@ class SAG(models.Model):
         verbose_name = "SAG"
         verbose_name_plural = "SAGs"
 
-    def uid(self):
+    def get_uid(self):
         sag_uid = self.sag_plate.uid if self.sag_plate else \
             self.sag_plate_dilution.uid
         return "%s_%s" % (sag_uid, well)
+    get_uid.short_description = "UID"
 
     def __unicode__(self):
         return self.uid

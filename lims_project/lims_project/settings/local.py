@@ -25,7 +25,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': normpath(join(DJANGO_ROOT, 'default.db')),
+        'NAME': normpath(join(DJANGO_ROOT, 'lims_project.sqlite')),
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
