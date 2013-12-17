@@ -6,7 +6,7 @@ from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     Amplicon, SAG, PureCulture, ReadFile
 
 standard_models = [SampleType, SampleLocation, StorageLocation, Protocol, QPCR,
-                   RTMDA, SequencingRun, Metagenome, Amplicon, SAG,
+                   RTMDA, SequencingRun, Amplicon, SAG,
                    PureCulture, ReadFile]
 
 for model in standard_models:
@@ -55,7 +55,7 @@ class ExtractedCellAdmin(admin.ModelAdmin):
         'storage_location',
         'notes'
     ]
-    readonly_fields = ('replicate_number',)
+    readonly_fields = ('replicate_number', 'uid')
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
 
 class ExtractedDNAAdmin(admin.ModelAdmin):
@@ -69,7 +69,7 @@ class ExtractedDNAAdmin(admin.ModelAdmin):
         'storage_location',
         'notes'
     ]
-    readonly_fields = ('replicate_number',)
+    readonly_fields = ('replicate_number', 'uid')
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
 
 class SAGPlateAdmin(admin.ModelAdmin):
@@ -84,6 +84,7 @@ class SAGPlateAdmin(admin.ModelAdmin):
         'rt_mda',
         'notes',
     ]
+    readonly_fields = ('index_by_sample', 'uid')
 admin.site.register(SAGPlate, SAGPlateAdmin)
 
 class SAGPlateDilutionAdmin(admin.ModelAdmin):
@@ -94,6 +95,7 @@ class SAGPlateDilutionAdmin(admin.ModelAdmin):
         'qpcr',
         'dilution',
     ]
+    readonly_fields = ('index_by_sample', 'uid')
 admin.site.register(SAGPlateDilution, SAGPlateDilutionAdmin)
 
 class DNALibraryAdmin(admin.ModelAdmin):
@@ -113,18 +115,20 @@ admin.site.register(DNALibrary, DNALibraryAdmin)
 
 class PrimerAdmin(admin.ModelAdmin):
     list_display = [
-        'name',
         'concentration',
         'tmelt',
         'storage_location',
         'stock',
     ]
-admin.site.register(Primer, PrimerAdmin):
+admin.site.register(Primer, PrimerAdmin)
 
 class MetagenomeAdmin(admin.ModelAdmin):
     list_display = [
-        '',
+        'uid',
+        'extracted_dna',
+        'diversity_report',
     ]
+admin.site.register(Metagenome, MetagenomeAdmin)
 
 # DEPRECATED -->
 class DNALibraryAdmin(admin.ModelAdmin):

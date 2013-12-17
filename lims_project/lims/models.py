@@ -1,6 +1,45 @@
 from django.db import models
 
 # Create your models here.
+class GroupBySample(models.Model):
+    index_by_sample = models.IntegerField(default="Automatically generated")
+
+    def get_count_by_sample(self):
+        return self.__class__.objects.filter(**{self.sample_id_keyword:self.sample.id}).count()
+
+    def get_max_by_sample(self):
+        return self.__class__.objects.filter(
+            **{self.sample_id_keyword:self.sample.id}).aggregate(
+                models.Max('index_by_sample'))['index_by_sample__max'] or 0
+
+    def save(self):
+        if self.pk is None:
+            self.index_by_sample = self.get_max_by_sample()
+            if self.index_by_sample >= len(self.character_list):
+                raise(Exception("Too many objects, only %i %s supported by "
+                                "naming scheme" % (len(self.character_list),
+                                                   self.__class__)))
+        super(GroupBySample, self).save()
+
+    def index_to_naming_scheme(self):
+        try:
+            return self.character_list[self.index_by_sample]
+        except IndexError:
+            raise(Exception("Too many objects, only %i %s supported by naming"
+                            "scheme" % (len(self.character_list),
+                                        self.__class__)))
+
+    class Meta:
+        abstract = True
+
+def property_verbose(description):
+    """Make the function a property and give it a description. Normal property
+    decoration does not work with short_description"""
+    def property_verbose_inner(function):
+        function.short_description = description
+        return property(function)
+    return property_verbose_inner
+
 class Collaborator(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -84,11 +123,9 @@ class ExtractedCell(models.Model):
     def barcode(self):
         return "EC:%s" % str(self.uid)
 
-    # @property decorator does not work with short_description
-    def get_uid(self):
+    @property_verbose("UID")
+    def uid(self):
         return "%s_%s" % (self.sample.uid, self.replicate_number)
-    get_uid.short_description = "UID"
-    uid = property(get_uid)
 
     def save(self):
         self.replicate_number = ExtractedCell.objects.filter(sample=self.sample.id).count() + 1
@@ -109,10 +146,9 @@ class ExtractedDNA(models.Model):
     def barcode(self):
         return "ED:" + str(self.uid)
 
-    def get_uid(self):
+    @property_verbose("UID")
+    def uid(self):
         return "%s_%s" % (self.sample.uid, self.replicate_number)
-    get_uid.short_description = "UID"
-    uid = property(get_uid)
 
     def save(self):
         """Saves and checks whether either Sample or ExtractedCell is provided.
@@ -157,7 +193,7 @@ class RTMDA(models.Model):
     def __unicode__(self):
         return self.report
 
-class SAGPlate(models.Model):
+class SAGPlate(GroupBySample):
     report = models.CharField(max_length=100)
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
@@ -166,39 +202,21 @@ class SAGPlate(models.Model):
     rt_mda = models.ForeignKey(RTMDA)
     qpcr = models.ForeignKey(QPCR)
 
+    sample_id_keyword = "extracted_cell__sample__id"
+    character_list = [chr(ord('A') + i) for i in range(26)] # [A-Z]
+
+    @property
+    def sample(self):
+        return self.extracted_cell.sample
+
     @property
     def barcode(self):
         return "SP:" + str(self.uid)
 
-    def get_count_grouped_by_sample(self):
-        return SAGPlate.objects.filter(extracted_cell__sample__id=\
-                                       self.extracted_cell.sample.id).count()
-
-    def get_alphaindex_grouped_by_sample(self):
-        sagplate_ex = \
-            list(SAGPlate.objects.filter(extracted_cell__sample__id=\
-                                         self.extracted_cell.sample.id))
-        if len(sagplate_ex) == 0:
-            rep = 0
-        else:
-            # get index of sagplate
-            rep = [e.id for e in sagplate_ex].index(self.id)
-            if rep > 25:
-                raise(Exception("Error, too many SAGPlates for Sample"))
-
-        # covert index to [A-Z]
-        return chr(ord('A') + rep)
-
-    def get_uid(self):
+    @property_verbose("UID")
+    def uid(self):
         return self.extracted_cell.sample.uid + \
-            self.get_alphaindex_grouped_by_sample()
-    get_uid.short_description = "UID"
-    uid = property(get_uid)
-
-    def save(self):
-        if self.get_count_grouped_by_sample() > 25:
-            raise(Exception("Too many SAGPlates for Sample"))
-        super(SAGPlate, self).save()
+            self.index_to_naming_scheme()
 
     class Meta:
         verbose_name = "SAG plate"
@@ -207,48 +225,26 @@ class SAGPlate(models.Model):
     def __unicode__(self):
         return self.uid
 
-class SAGPlateDilution(models.Model):
+class SAGPlateDilution(GroupBySample):
     sag_plate = models.ForeignKey(SAGPlate)
     dilution = models.CharField(max_length=100)
     qpcr = models.ForeignKey(QPCR)
+
+    sample_id_keyword = "extracted_cell__sample__id"
+    character_list = [chr(ord('a') + i) for i in range(26)] + range(10) # [a-z0-9]
+
+    @property
+    def sample(self):
+        return self.extracted_cell.sample
 
     @property
     def barcode(self):
         return "SP:" + str(self.uid)
 
-    def get_count_grouped_by_sample(self):
-        return SAGPlateDilution.objects.filter(sag_plate__extracted_cell__sample__id=\
-                                               self.sag_plate.extracted_cell.sample.id).count()
-
-    def get_alphaindex_grouped_by_sample(self):
-        sagplate_ex = \
-            list(SAGPlateDilution.objects.filter(sag_plate__extracted_cell__sample__id=\
-                                               self.sag_plate.extracted_cell.sample.id))
-        if len(sagplate_ex) == 0:
-            rep = 0
-        else:
-            # get index of sagplate
-            rep = [e.id for e in sagplate_ex].index(self.id)
-            # conver index to [a-z0-9]
-            if rep < 26:
-                result = chr(ord('a') + rep)
-            elif rep > 35:
-                raise(Exception("Error, too many SAGPlateDilutions for Sample"))
-            else:
-                result = str(rep - 26)
-
-        return result
-
-    def get_uid(self):
+    @property_verbose("UID")
+    def uid(self):
         return self.sag_plate.extracted_cell.sample.uid + \
-            self.get_alphaindex_grouped_by_sample()
-    get_uid.short_description = "UID"
-    uid = property(get_uid)
-
-    def save(self):
-        if self.get_count_grouped_by_sample() > 35:
-            raise(Exception("Too many SAGPlateDilutions for Sample"))
-        super(SAGPlateDilution, self).save()
+            self.index_to_naming_scheme()
 
     class Meta:
         verbose_name = "SAG plate dilution"
@@ -257,15 +253,24 @@ class SAGPlateDilution(models.Model):
     def __unicode__(self):
         return self.uid
 
-class Metagenome(models.Model):
+class Metagenome(GroupBySample):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
 
-    def get_uid(self):
-        return self.extracted_dna.sample.uid + "A" + \
-            self.get_alphaindex_grouped_by_sample()
-    get_uid.short_description = "UID"
-    uid = property(get_uid)
+    sample_id_keyword = "extracted_dna__sample__id"
+    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
+
+    @property
+    def sample(self):
+        return self.extracted_dna.sample
+
+    @property_verbose("UID")
+    def uid(self):
+        return self.extracted_dna.sample.uid + "A_X" + \
+            self.index_to_naming_scheme()
+
+    def __unicode__(self):
+        return self.uid
 
 class Primer(models.Model):
     sequence = models.TextField()
@@ -303,11 +308,11 @@ class SAG(models.Model):
         verbose_name = "SAG"
         verbose_name_plural = "SAGs"
 
-    def get_uid(self):
+    @property_verbose("UID")
+    def uid(self):
         sag_uid = self.sag_plate.uid if self.sag_plate else \
             self.sag_plate_dilution.uid
         return "%s_%s" % (sag_uid, well)
-    get_uid.short_description = "UID"
 
     def __unicode__(self):
         return self.uid
