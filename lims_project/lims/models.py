@@ -10,12 +10,13 @@ class GroupBySample(models.Model):
     def get_max_by_sample(self):
         return self.__class__.objects.filter(
             **{self.sample_id_keyword:self.sample.id}).aggregate(
-                models.Max('index_by_sample'))['index_by_sample__max'] or 0
+                models.Max('index_by_sample'))['index_by_sample__max']
 
     def save(self):
         if self.pk is None:
-            self.index_by_sample = self.get_max_by_sample()
-            if self.index_by_sample >= len(self.character_list):
+            self.index_by_sample = self.get_count_by_sample()
+            if hasattr(self, 'character_list') \
+              and self.index_by_sample >= len(self.character_list):
                 raise(Exception("Too many objects, only %i %s supported by "
                                 "naming scheme" % (len(self.character_list),
                                                    self.__class__)))
@@ -112,12 +113,13 @@ class Protocol(models.Model):
     def __unicode__(self):
         return "%s" % (self.name)
 
-class ExtractedCell(models.Model):
+class ExtractedCell(GroupBySample):
     sample = models.ForeignKey(Sample)
-    replicate_number = models.IntegerField(default="Automatically generated")
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
     notes = models.TextField(blank=True)
+
+    sample_id_keyword = "sample__id"
 
     @property
     def barcode(self):
@@ -125,22 +127,19 @@ class ExtractedCell(models.Model):
 
     @property_verbose("UID")
     def uid(self):
-        return "%s_%s" % (self.sample.uid, self.replicate_number)
-
-    def save(self):
-        self.replicate_number = ExtractedCell.objects.filter(sample=self.sample.id).count() + 1
-        super(ExtractedCell, self).save()
+        return "%s_%s" % (self.sample.uid, self.index_by_sample + 1)
 
     def __unicode__(self):
         return self.uid
 
-class ExtractedDNA(models.Model):
+class ExtractedDNA(GroupBySample):
     sample = models.ForeignKey(Sample, null=True, blank=True)
-    replicate_number = models.IntegerField(default="Automatically generated")
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
     notes = models.TextField(blank=True)
     extracted_cell = models.ForeignKey(ExtractedCell, null=True, blank=True)
+
+    sample_id_keyword = "sample__id"
 
     @property
     def barcode(self):
@@ -148,7 +147,7 @@ class ExtractedDNA(models.Model):
 
     @property_verbose("UID")
     def uid(self):
-        return "%s_%s" % (self.sample.uid, self.replicate_number)
+        return "%s_%s" % (self.sample.uid, self.index_by_sample + 1)
 
     def save(self):
         """Saves and checks whether either Sample or ExtractedCell is provided.
@@ -160,7 +159,6 @@ class ExtractedDNA(models.Model):
                 sample = self.sample
             else:
                 sample = self.extracted_cell.sample
-            self.replicate_number = ExtractedDNA.objects.filter(sample=sample.id).count() + 1
             super(ExtractedDNA, self).save()
         else:
             raise(Exception("You have to specify an Extracted cell or"
@@ -258,7 +256,7 @@ class Metagenome(GroupBySample):
     diversity_report = models.CharField(max_length=100)
 
     sample_id_keyword = "extracted_dna__sample__id"
-    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
+    character_list = ["%02d" % i for i in range(100)] # [01-99]
 
     @property
     def sample(self):
@@ -288,6 +286,20 @@ class Amplicon(models.Model):
     buffer = models.CharField(max_length=100)
     notes = models.TextField()
     primer = models.ManyToManyField(Primer)
+
+    sample_id_keyword = "extracted_dna__sample__id"
+
+    @property
+    def sample(self):
+        return self.extracted_dna.sample
+
+    @property_verbose("UID")
+    def uid(self):
+        return self.extracted_dna.sample.uid + "A_Y" + \
+            self.index_to_naming_scheme()
+
+    def __unicode__(self):
+        return self.uid
 
 class SAG(models.Model):
     sag_plate = models.ForeignKey(SAGPlate, null=True)
@@ -322,6 +334,21 @@ class PureCulture(models.Model):
     concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
+
+    sample_id_keyword = "extracted_dna__sample__id"
+    character_list = ["%02d" % i for i in range(100)] # [01-99]
+
+    @property
+    def sample(self):
+        return self.extracted_dna.sample
+
+    @property_verbose("UID")
+    def uid(self):
+        return self.extracted_dna.sample.uid + "A_Z" + \
+            self.index_to_naming_scheme()
+
+    def __unicode__(self):
+        return self.uid
 
 class DNALibrary(models.Model):
     amplicon = models.ForeignKey(Amplicon, null=True)

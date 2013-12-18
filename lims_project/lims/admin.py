@@ -50,12 +50,12 @@ class ExtractedCellAdmin(admin.ModelAdmin):
         'barcode',
         'sample',
         'protocol',
-        'replicate_number',
+        'index_by_sample',
         'protocol',
         'storage_location',
         'notes'
     ]
-    readonly_fields = ('replicate_number', 'uid')
+    readonly_fields = ('index_by_sample', 'uid')
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
 
 class ExtractedDNAAdmin(admin.ModelAdmin):
@@ -64,12 +64,12 @@ class ExtractedDNAAdmin(admin.ModelAdmin):
         'barcode',
         'sample',
         'protocol',
-        'replicate_number',
+        'index_by_sample',
         'protocol',
         'storage_location',
         'notes'
     ]
-    readonly_fields = ('replicate_number', 'uid')
+    readonly_fields = ('index_by_sample', 'uid')
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
 
 class SAGPlateAdmin(admin.ModelAdmin):
