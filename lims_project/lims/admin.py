@@ -12,11 +12,20 @@ standard_models = [SampleType, SampleLocation, StorageLocation, Protocol, QPCR,
 for model in standard_models:
     admin.site.register(model)
 
+def create_modeladmin(modeladmin, model, name = None):
+    class  Meta:
+        proxy = True
+        app_label = model._meta.app_label
+
+    attrs = {'__module__': '', 'Meta': Meta}
+
+    newmodel = type(name, (model,), attrs)
+
+    admin.site.register(newmodel, modeladmin)
+    return modeladmin
 
 class SampleAdmin(admin.ModelAdmin):
-    list_display = [
-        'uid',
-        'barcode',
+    editables = [
         'collaborator',
         'sample_type',
         'sample_location',
@@ -30,8 +39,21 @@ class SampleAdmin(admin.ModelAdmin):
         'storage_medium',
         'biosafety_level',
         'status',
-        'notes'
     ]
+    list_display = [
+        'uid',
+        'barcode',
+    ] + editables
+
+    def changelist_view(self, request, extra_context=None):
+        #if request.method == "GET" and 'a' in request.GET:
+        #    ctx["list_editable"] = self.editables
+        #else:
+        #    ctx["list_editable"] = []
+        self.list_editable = self.editables
+        return super(SampleAdmin, self).changelist_view(request,
+                                                        extra_context=extra_context)
+
 admin.site.register(Sample, SampleAdmin)
 
 class CollaboratorAdmin(admin.ModelAdmin):
