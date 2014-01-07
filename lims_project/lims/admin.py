@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     StorageLocation, Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
@@ -45,12 +47,25 @@ class SampleAdmin(admin.ModelAdmin):
         'barcode',
     ] + editables
 
+    class Media:
+        js = ('lims/admin_edit_button.js',)
+
+    def response_change(self, request, obj, post_url_continue=None):
+        """This makes the response after changing go back to parameterless
+        overview (maybe not necessary)."""
+        return HttpResponseRedirect(reverse("admin:lims_sample_changelist"))
+
     def changelist_view(self, request, extra_context=None):
-        #if request.method == "GET" and 'a' in request.GET:
-        #    ctx["list_editable"] = self.editables
-        #else:
-        #    ctx["list_editable"] = []
-        self.list_editable = self.editables
+        # Make editable if e is given as GET value
+        if request.method == "GET" and 'e' in request.GET:
+            self.list_editable = self.editables
+        else:
+            self.list_editable = []
+
+        # redirect to parameterless if object is saved
+        if request.POST.has_key("_save"):
+            return HttpResponseRedirect(reverse("admin:lims_sample_changelist"))
+
         return super(SampleAdmin, self).changelist_view(request,
                                                         extra_context=extra_context)
 
