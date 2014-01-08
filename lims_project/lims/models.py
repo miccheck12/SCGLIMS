@@ -1,37 +1,43 @@
 from django.db import models
 
 # Create your models here.
-class GroupBySample(models.Model):
-    index_by_sample = models.IntegerField(default="Automatically generated")
+class IndexByGroup(models.Model):
+    def get_count_by_group(self):
+        return self.__class__.objects.filter(**{self.group_id_keyword:self.group.id}).count()
 
-    def get_count_by_sample(self):
-        return self.__class__.objects.filter(**{self.sample_id_keyword:self.sample.id}).count()
-
-    def get_max_by_sample(self):
+    def get_max_by_group(self):
         return self.__class__.objects.filter(
-            **{self.sample_id_keyword:self.sample.id}).aggregate(
-                models.Max('index_by_sample'))['index_by_sample__max']
+            **{self.group_id_keyword:self.group.id}).aggregate(
+                models.Max('index_by_group'))['index_by_group__max']
 
-    def save(self):
+    def calc_index_by_group(self):
         if self.pk is None:
-            self.index_by_sample = self.get_count_by_sample()
+            index_by_group = self.get_count_by_group()
             if hasattr(self, 'character_list') \
-              and self.index_by_sample >= len(self.character_list):
+              and index_by_group >= len(self.character_list):
                 raise(Exception("Too many objects, only %i %s supported by "
                                 "naming scheme" % (len(self.character_list),
                                                    self.__class__)))
-        super(GroupBySample, self).save()
+            return index_by_group
+        else:
+            return self.index_by_group
+
+    def save(self):
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+        super(IndexByGroup, self).save()
 
     def index_to_naming_scheme(self):
         try:
-            return self.character_list[self.index_by_sample]
+            return self.character_list[self.index_by_group]
         except IndexError:
             raise(Exception("Too many objects, only %i %s supported by naming"
                             "scheme" % (len(self.character_list),
                                         self.__class__)))
-
     class Meta:
         abstract = True
+
+    index_by_group = models.IntegerField(default="Automatically generated")
 
 def property_verbose(description):
     """Make the function a property and give it a description. Normal property
@@ -113,13 +119,17 @@ class Protocol(models.Model):
     def __unicode__(self):
         return "%s" % (self.name)
 
-class ExtractedCell(GroupBySample):
+class ExtractedCell(IndexByGroup):
     sample = models.ForeignKey(Sample)
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
     notes = models.TextField(blank=True)
 
-    sample_id_keyword = "sample__id"
+    group_id_keyword = "sample__id"
+
+    @property
+    def group(self):
+        return self.sample
 
     @property
     def barcode(self):
@@ -127,19 +137,25 @@ class ExtractedCell(GroupBySample):
 
     @property_verbose("UID")
     def uid(self):
-        return "%s_%s" % (self.sample.uid, self.index_by_sample + 1)
+        return "%s_%s" % (self.group.uid, self.index_by_group + 1)
 
     def __unicode__(self):
         return self.uid
 
-class ExtractedDNA(GroupBySample):
+class ExtractedDNA(IndexByGroup):
     sample = models.ForeignKey(Sample, null=True, blank=True)
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
     notes = models.TextField(blank=True)
     extracted_cell = models.ForeignKey(ExtractedCell, null=True, blank=True)
 
-    sample_id_keyword = "sample__id"
+    @property
+    def group_id_keyword(self):
+        return "sample__id" if self.sample else "extracted_cell__sample__id"
+
+    @property
+    def group(self):
+        return self.sample if self.sample else self.extracted_cell.sample
 
     @property
     def barcode(self):
@@ -147,7 +163,7 @@ class ExtractedDNA(GroupBySample):
 
     @property_verbose("UID")
     def uid(self):
-        return "%s_%s" % (self.sample.uid, self.index_by_sample + 1)
+        return "%s_%s" % (self.sample.uid, self.index_by_group + 1)
 
     def save(self):
         """Saves and checks whether either Sample or ExtractedCell is provided.
@@ -191,7 +207,7 @@ class RTMDA(models.Model):
     def __unicode__(self):
         return self.report
 
-class SAGPlate(GroupBySample):
+class SAGPlate(IndexByGroup):
     report = models.CharField(max_length=100)
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
@@ -200,11 +216,11 @@ class SAGPlate(GroupBySample):
     rt_mda = models.ForeignKey(RTMDA)
     qpcr = models.ForeignKey(QPCR)
 
-    sample_id_keyword = "extracted_cell__sample__id"
+    group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('A') + i) for i in range(26)] # [A-Z]
 
     @property
-    def sample(self):
+    def group(self):
         return self.extracted_cell.sample
 
     @property
@@ -223,16 +239,16 @@ class SAGPlate(GroupBySample):
     def __unicode__(self):
         return self.uid
 
-class SAGPlateDilution(GroupBySample):
+class SAGPlateDilution(IndexByGroup):
     sag_plate = models.ForeignKey(SAGPlate)
     dilution = models.CharField(max_length=100)
     qpcr = models.ForeignKey(QPCR)
 
-    sample_id_keyword = "extracted_cell__sample__id"
+    group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('a') + i) for i in range(26)] + range(10) # [a-z0-9]
 
     @property
-    def sample(self):
+    def group(self):
         return self.extracted_cell.sample
 
     @property
@@ -251,15 +267,15 @@ class SAGPlateDilution(GroupBySample):
     def __unicode__(self):
         return self.uid
 
-class Metagenome(GroupBySample):
+class Metagenome(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
 
-    sample_id_keyword = "extracted_dna__sample__id"
-    character_list = ["%02d" % i for i in range(100)] # [01-99]
+    group_id_keyword = "extracted_dna__sample__id"
+    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
 
     @property
-    def sample(self):
+    def group(self):
         return self.extracted_dna.sample
 
     @property_verbose("UID")
@@ -280,17 +296,18 @@ class Primer(models.Model):
                                         decimal_places=5)
     stock = models.PositiveIntegerField()
 
-class Amplicon(models.Model):
+class Amplicon(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
     buffer = models.CharField(max_length=100)
     notes = models.TextField()
     primer = models.ManyToManyField(Primer)
 
-    sample_id_keyword = "extracted_dna__sample__id"
+    group_id_keyword = "extracted_dna__sample__id"
+    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
 
     @property
-    def sample(self):
+    def group(self):
         return self.extracted_dna.sample
 
     @property_verbose("UID")
@@ -324,22 +341,22 @@ class SAG(models.Model):
     def uid(self):
         sag_uid = self.sag_plate.uid if self.sag_plate else \
             self.sag_plate_dilution.uid
-        return "%s_%s" % (sag_uid, well)
+        return "%s_%s" % (sag_uid, self.well)
 
     def __unicode__(self):
         return self.uid
 
-class PureCulture(models.Model):
+class PureCulture(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
 
-    sample_id_keyword = "extracted_dna__sample__id"
-    character_list = ["%02d" % i for i in range(100)] # [01-99]
+    group_id_keyword = "extracted_dna__sample__id"
+    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
 
     @property
-    def sample(self):
+    def group(self):
         return self.extracted_dna.sample
 
     @property_verbose("UID")
@@ -350,27 +367,60 @@ class PureCulture(models.Model):
     def __unicode__(self):
         return self.uid
 
-class DNALibrary(models.Model):
-    amplicon = models.ForeignKey(Amplicon, null=True)
-    metagenome = models.ForeignKey(Metagenome, null=True)
-    sag = models.ForeignKey(SAG, null=True)
-    pure_culture = models.ForeignKey(PureCulture, null=True)
+class DNALibrary(IndexByGroup):
+    amplicon = models.ForeignKey(Amplicon, blank=True, null=True)
+    metagenome = models.ForeignKey(Metagenome, blank=True, null=True)
+    sag = models.ForeignKey(SAG, null=True, blank=True, verbose_name="SAG")
+    pure_culture = models.ForeignKey(PureCulture, blank=True, null=True)
 
     buffer = models.CharField(max_length=100)
     i7 = models.CharField(max_length=100)
     i5 = models.CharField(max_length=100)
-    sample_name_on_platform = models.CharField(max_length=100)
+    sample_name_on_platform = models.CharField(max_length=100, unique=True)
 
     #fastq_files
     protocol = models.ForeignKey(Protocol)
     storage_location = models.ForeignKey(StorageLocation)
+
+    group_id_keyword = "extracted_cell__sample__id"
+    character_list = [chr(ord('A') + i) for i in range(26)] # [A-Z]
+
+    @property
+    def dna_type(self):
+        if self.amplicon:
+            return "Amplicon"
+        elif self.sag:
+            return "SAG"
+        elif self.pure_culture:
+            return "Pure DNA"
+        elif self.metagenome:
+            return "Metagenome"
+        else:
+            raise(Exception("No DNA source specified."))
+
+    @property
+    def group_id_keyword(self):
+        return {"Amplicon"  :"amplicon__id",
+                "SAG"       :"sag__id",
+                "Pure DNA"  :"pure_culture__id",
+                "Metagenome":"metagenome__id"
+               }[self.dna_type]
+
+    @property
+    def group(self):
+        return self.amplicon or self.sag or self.pure_culture or self.metagenome
+
+    @property_verbose("UID")
+    def uid(self):
+        return self.group.uid + \
+            self.index_to_naming_scheme()
 
     def save(self):
         if sum((bool(self.amplicon),
                 bool(self.metagenome),
                 bool(self.sag),
                 bool(self.pure_culture))) == 1:
-            super(ExtractedDNA, self).save()
+            super(DNALibrary, self).save()
         else:
             raise(Exception("You have to specify a DNA source from either "
                             "Amplicon, Metagenome, SAG or Pure culture and not "
@@ -380,8 +430,13 @@ class DNALibrary(models.Model):
         verbose_name = "DNA library"
         verbose_name_plural = verbose_name[:-1] + "ies"
 
+    def __unicode__(self):
+        return "%s" % (self.uid)
+
 class SequencingRun(models.Model):
+    uid = models.CharField("UID", max_length=100, unique=True)
     date = models.DateField()
+    sequencing_center = models.CharField(max_length=100)
     machine = models.CharField(max_length=100)
     report = models.CharField(max_length=100)
     folder = models.CharField(max_length=100)
@@ -389,6 +444,9 @@ class SequencingRun(models.Model):
     dna_library = models.ManyToManyField(DNALibrary)
 
     protocol = models.ForeignKey(Protocol)
+
+    def __unicode__(self):
+        return "%s" % (self.uid)
 
 class ReadFile(models.Model):
     folder = models.CharField(max_length=100)

@@ -7,9 +7,8 @@ from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
     Amplicon, SAG, PureCulture, ReadFile
 
-standard_models = [SampleType, SampleLocation, StorageLocation, Protocol, QPCR,
-                   RTMDA, SequencingRun, Amplicon, SAG,
-                   PureCulture, ReadFile]
+standard_models = [SampleType, SampleLocation, StorageLocation, QPCR, RTMDA,
+                   Amplicon]
 
 for model in standard_models:
     admin.site.register(model)
@@ -43,6 +42,7 @@ class SampleAdmin(admin.ModelAdmin):
         'status',
     ]
     list_display = [
+        'id',
         'uid',
         'barcode',
     ] + editables
@@ -73,6 +73,7 @@ admin.site.register(Sample, SampleAdmin)
 
 class CollaboratorAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'first_name',
         'last_name',
         'institution',
@@ -83,34 +84,37 @@ admin.site.register(Collaborator, CollaboratorAdmin)
 
 class ExtractedCellAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'uid',
         'barcode',
         'sample',
         'protocol',
-        'index_by_sample',
+        'index_by_group',
         'protocol',
         'storage_location',
         'notes'
     ]
-    readonly_fields = ('index_by_sample', 'uid')
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
 
 class ExtractedDNAAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'uid',
         'barcode',
         'sample',
         'protocol',
-        'index_by_sample',
+        'index_by_group',
         'protocol',
         'storage_location',
         'notes'
     ]
-    readonly_fields = ('index_by_sample', 'uid')
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
 
 class SAGPlateAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'uid',
         'barcode',
         'extracted_cell',
@@ -121,23 +125,25 @@ class SAGPlateAdmin(admin.ModelAdmin):
         'rt_mda',
         'notes',
     ]
-    readonly_fields = ('index_by_sample', 'uid')
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(SAGPlate, SAGPlateAdmin)
 
 class SAGPlateDilutionAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'uid',
         'barcode',
         'sag_plate',
         'qpcr',
         'dilution',
     ]
-    readonly_fields = ('index_by_sample', 'uid')
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(SAGPlateDilution, SAGPlateDilutionAdmin)
 
 class DNALibraryAdmin(admin.ModelAdmin):
     list_display = [
         'id',
+        'uid',
         'amplicon',
         'metagenome',
         'sag',
@@ -148,10 +154,12 @@ class DNALibraryAdmin(admin.ModelAdmin):
         'sample_name_on_platform',
         'storage_location',
     ]
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(DNALibrary, DNALibraryAdmin)
 
 class PrimerAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'concentration',
         'tmelt',
         'storage_location',
@@ -161,11 +169,67 @@ admin.site.register(Primer, PrimerAdmin)
 
 class MetagenomeAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'uid',
         'extracted_dna',
         'diversity_report',
     ]
 admin.site.register(Metagenome, MetagenomeAdmin)
+
+class SAGAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'uid',
+        'sag_plate',
+        'sag_plate_dilution',
+        'well',
+        'concentration'
+    ]
+admin.site.register(SAG, SAGAdmin)
+
+class PureCultureAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'uid',
+        'extracted_dna',
+        'concentration'
+    ]
+admin.site.register(PureCulture, PureCultureAdmin)
+
+class SequencingRunAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'uid',
+        'date',
+        'sequencing_center',
+        'machine',
+        'report',
+        'folder',
+        'notes',
+        'protocol',
+    ]
+admin.site.register(SequencingRun, SequencingRunAdmin)
+
+class ReadFileAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'filename',
+        'pair',
+        'lane',
+        'read_count',
+        'dna_library',
+        'sequencing_run',
+    ]
+admin.site.register(ReadFile, ReadFileAdmin)
+
+class ProtocolAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'revision',
+        'link',
+        'notes',
+    ]
+admin.site.register(Protocol, ProtocolAdmin)
 
 # DEPRECATED -->
 class DNALibraryAdmin(admin.ModelAdmin):
