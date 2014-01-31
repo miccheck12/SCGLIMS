@@ -1,14 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
+
 class IndexByGroup(models.Model):
     def get_count_by_group(self):
-        return self.__class__.objects.filter(**{self.group_id_keyword:self.group.id}).count()
+        return self.__class__.objects.filter(**{self.group_id_keyword: self.group.id}).count()
 
     def get_max_by_group(self):
         return self.__class__.objects.filter(
-            **{self.group_id_keyword:self.group.id}).aggregate(
-                models.Max('index_by_group'))['index_by_group__max']
+            **{self.group_id_keyword: self.group.id}).aggregate(
+            models.Max('index_by_group'))['index_by_group__max']
 
     def calc_index_by_group(self):
         if self.pk is None:
@@ -34,10 +35,12 @@ class IndexByGroup(models.Model):
             raise(Exception("Too many objects, only %i %s supported by naming"
                             "scheme" % (len(self.character_list),
                                         self.__class__)))
+
     class Meta:
         abstract = True
 
     index_by_group = models.IntegerField(default="Automatically generated")
+
 
 def property_verbose(description):
     """Make the function a property and give it a description. Normal property
@@ -46,6 +49,7 @@ def property_verbose(description):
         function.short_description = description
         return property(function)
     return property_verbose_inner
+
 
 class Collaborator(models.Model):
     first_name = models.CharField(max_length=100)
@@ -59,12 +63,14 @@ class Collaborator(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.first_name, self.last_name)
 
+
 class SampleType(models.Model):
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(blank=True)
 
     def __unicode__(self):
         return "%s" % (self.name)
+
 
 class SampleLocation(models.Model):
     name = models.CharField(max_length=30, unique=True)
@@ -73,12 +79,14 @@ class SampleLocation(models.Model):
     def __unicode__(self):
         return "%s" % (self.name)
 
+
 class StorageLocation(models.Model):
     name = models.CharField(max_length=30)
     description = models.TextField(blank=False)
 
     def __unicode__(self):
         return "%s" % (self.name)
+
 
 class Sample(models.Model):
     uid = models.CharField("UID", max_length=20, unique=True)
@@ -100,7 +108,7 @@ class Sample(models.Model):
     biosafety_level = models.IntegerField(
         choices=((1, 1), (2, 2), (3, 3), (4, 4)), blank=True, null=True)
     status = models.CharField(max_length=8,
-        choices=(('new', 'new'), ('used', 'used'), ('finished','finished')), blank=True, null=True)
+        choices=(('new', 'new'), ('used', 'used'), ('finished', 'finished')), blank=True, null=True)
     notes = models.TextField(blank=True)
 
     @property
@@ -110,6 +118,29 @@ class Sample(models.Model):
     def __unicode__(self):
         return "%s" % (self.uid)
 
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'uid',
+            'barcode',
+            'collaborator',
+            'sample_type',
+            'sample_location',
+            'gps',
+            'temperature',
+            'ph',
+            'salinity',
+            'depth',
+            'shipping_method',
+            'storage_location',
+            'storage_medium',
+            'biosafety_level',
+            'status',
+            'notes',
+        ]
+
+
 class Protocol(models.Model):
     name = models.CharField(max_length=30)
     revision = models.CharField(max_length=30)
@@ -118,6 +149,7 @@ class Protocol(models.Model):
 
     def __unicode__(self):
         return "%s" % (self.name)
+
 
 class ExtractedCell(IndexByGroup):
     sample = models.ForeignKey(Sample)
@@ -141,6 +173,7 @@ class ExtractedCell(IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
 
 class ExtractedDNA(IndexByGroup):
     sample = models.ForeignKey(Sample, null=True, blank=True)
@@ -171,10 +204,10 @@ class ExtractedDNA(IndexByGroup):
         ExtractedCell for example. Otherwise you would have to change both this
         object and the Extracted Cell."""
         if bool(self.sample) != bool(self.extracted_cell):
-            if self.sample:
-                sample = self.sample
-            else:
-                sample = self.extracted_cell.sample
+            #if self.sample:
+            #    sample = self.sample
+            #else:
+            #    sample = self.extracted_cell.sample
             super(ExtractedDNA, self).save()
         else:
             raise(Exception("You have to specify an Extracted cell or"
@@ -187,6 +220,7 @@ class ExtractedDNA(IndexByGroup):
     def __unicode__(self):
         return self.uid
 
+
 class QPCR(models.Model):
     report = models.CharField(max_length=100)
 
@@ -196,6 +230,7 @@ class QPCR(models.Model):
 
     def __unicode__(self):
         return self.report
+
 
 class RTMDA(models.Model):
     report = models.CharField(max_length=100)
@@ -207,6 +242,7 @@ class RTMDA(models.Model):
     def __unicode__(self):
         return self.report
 
+
 class SAGPlate(IndexByGroup):
     report = models.CharField(max_length=100)
     protocol = models.ForeignKey(Protocol)
@@ -217,7 +253,7 @@ class SAGPlate(IndexByGroup):
     qpcr = models.ForeignKey(QPCR)
 
     group_id_keyword = "extracted_cell__sample__id"
-    character_list = [chr(ord('A') + i) for i in range(26)] # [A-Z]
+    character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
 
     @property
     def group(self):
@@ -239,13 +275,14 @@ class SAGPlate(IndexByGroup):
     def __unicode__(self):
         return self.uid
 
+
 class SAGPlateDilution(IndexByGroup):
     sag_plate = models.ForeignKey(SAGPlate)
     dilution = models.CharField(max_length=100)
     qpcr = models.ForeignKey(QPCR)
 
     group_id_keyword = "extracted_cell__sample__id"
-    character_list = [chr(ord('a') + i) for i in range(26)] + range(10) # [a-z0-9]
+    character_list = [chr(ord('a') + i) for i in range(26)] + range(10)  # [a-z0-9]
 
     @property
     def group(self):
@@ -267,12 +304,13 @@ class SAGPlateDilution(IndexByGroup):
     def __unicode__(self):
         return self.uid
 
+
 class Metagenome(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
 
     group_id_keyword = "extracted_dna__sample__id"
-    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
+    character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
 
     @property
     def group(self):
@@ -286,6 +324,7 @@ class Metagenome(IndexByGroup):
     def __unicode__(self):
         return self.uid
 
+
 class Primer(models.Model):
     sequence = models.TextField()
     storage_location = models.ForeignKey(StorageLocation)
@@ -296,6 +335,7 @@ class Primer(models.Model):
                                         decimal_places=5)
     stock = models.PositiveIntegerField()
 
+
 class Amplicon(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
@@ -304,7 +344,7 @@ class Amplicon(IndexByGroup):
     primer = models.ManyToManyField(Primer)
 
     group_id_keyword = "extracted_dna__sample__id"
-    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
+    character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
 
     @property
     def group(self):
@@ -317,6 +357,7 @@ class Amplicon(IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
 
 class SAG(models.Model):
     sag_plate = models.ForeignKey(SAGPlate, null=True)
@@ -333,6 +374,7 @@ class SAG(models.Model):
         else:
             raise(Exception("You have to specify either a SAGPlate or a "
                             "SAGPlateDilution and not both"))
+
     class Meta:
         verbose_name = "SAG"
         verbose_name_plural = "SAGs"
@@ -346,6 +388,7 @@ class SAG(models.Model):
     def __unicode__(self):
         return self.uid
 
+
 class PureCulture(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
@@ -353,7 +396,7 @@ class PureCulture(IndexByGroup):
                                         decimal_places=5)
 
     group_id_keyword = "extracted_dna__sample__id"
-    character_list = ["%02d" % i for i in range(1, 100)] # [01-99]
+    character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
 
     @property
     def group(self):
@@ -366,6 +409,7 @@ class PureCulture(IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
 
 class DNALibrary(IndexByGroup):
     amplicon = models.ForeignKey(Amplicon, blank=True, null=True)
@@ -383,7 +427,7 @@ class DNALibrary(IndexByGroup):
     storage_location = models.ForeignKey(StorageLocation)
 
     group_id_keyword = "extracted_cell__sample__id"
-    character_list = [chr(ord('A') + i) for i in range(26)] # [A-Z]
+    character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
 
     @property
     def dna_type(self):
@@ -400,10 +444,10 @@ class DNALibrary(IndexByGroup):
 
     @property
     def group_id_keyword(self):
-        return {"Amplicon"  :"amplicon__id",
-                "SAG"       :"sag__id",
-                "Pure DNA"  :"pure_culture__id",
-                "Metagenome":"metagenome__id"
+        return {"Amplicon"  : "amplicon__id",
+                "SAG"       : "sag__id",
+                "Pure DNA"  : "pure_culture__id",
+                "Metagenome": "metagenome__id",
                }[self.dna_type]
 
     @property
@@ -433,6 +477,7 @@ class DNALibrary(IndexByGroup):
     def __unicode__(self):
         return "%s" % (self.uid)
 
+
 class SequencingRun(models.Model):
     uid = models.CharField("UID", max_length=100, unique=True)
     date = models.DateField()
@@ -448,6 +493,7 @@ class SequencingRun(models.Model):
     def __unicode__(self):
         return "%s" % (self.uid)
 
+
 class ReadFile(models.Model):
     folder = models.CharField(max_length=100)
     filename = models.CharField(max_length=100)
@@ -456,3 +502,10 @@ class ReadFile(models.Model):
     read_count = models.PositiveIntegerField()
     dna_library = models.ForeignKey(DNALibrary)
     sequencing_run = models.ForeignKey(SequencingRun)
+
+
+class UserProfile(AbstractUser):
+    fullname = models.CharField(max_length=30, unique=True)
+
+    #USERNAME_FIELD = 'fullname'
+    #REQUIRED_FIELDS = ['']

@@ -1,0 +1,18 @@
+{% load staticfiles %}
+<link href="{% static "lims/table.css" %}" rel="stylesheet" type="text/css" />
+<table class="boxtable">
+    <thead>
+        <tr>
+            <th>{{ tablename }}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key, value in rows %}
+        <tr>
+            <td class="attr_name">{{key}}</td>
+            <td class="attr_value">{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
