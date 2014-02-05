@@ -1,0 +1,19 @@
+{% extends "lims/base.html" %}
+
+{% block content %}
+
+{# There's only one collaborator for each sample according to the database scheme (DS) #}
+{% if collaborator %}
+{% include "lims/objectpanel.html" with objectname="Collaborator" object=collaborator only %}
+{% endif %}
+
+{% if sample %}
+{% include "lims/objectpanel.html" with objectname="Sample" object=sample only %}
+{% endif %}
+
+{# There could be multiple extracted cells for one sample #}
+{% if extractedcells %}
+{% include "lims/objectpanel.html" with objectname="Extracted Cells" objects=extractedcells only %}
+{% endif %}
+
+{% endblock %}

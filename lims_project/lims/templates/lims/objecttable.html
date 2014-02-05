@@ -1,0 +1,29 @@
+{% comment %}
+Displays all attributes of an object. The object is expected to have a
+list-like returning function preferred_ordering that returns the attribute
+names in order.
+
+From: http://coding.smashingmagazine.com/2008/08/13/top-10-css-table-designs/
+
+args: objectname, object
+{% endcomment %}
+
+{% load staticfiles %}
+{% load getattribute %}
+<link href="{% static "lims/table.css" %}" rel="stylesheet" type="text/css" />
+<table class="boxtable">
+    <thead>
+        <tr>
+            <th>{{ objectname }}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in object.preferred_ordering %}
+        <tr>
+            <td class="attr_name">{{a}}</td>
+            <td class="attr_value">{{ object|getattribute:a }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

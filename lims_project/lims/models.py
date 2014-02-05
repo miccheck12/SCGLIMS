@@ -63,9 +63,23 @@ class Collaborator(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.first_name, self.last_name)
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'first_name',
+            'last_name',
+            'institution',
+            'address',
+            'phone',
+            'email',
+            'notes',
+        ]
+
 
 class SampleType(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -73,7 +87,7 @@ class SampleType(models.Model):
 
 
 class SampleLocation(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -81,7 +95,7 @@ class SampleLocation(models.Model):
 
 
 class StorageLocation(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=False)
 
     def __unicode__(self):
@@ -118,6 +132,7 @@ class Sample(models.Model):
     def __unicode__(self):
         return "%s" % (self.uid)
 
+    @property
     def preferred_ordering(self):
         """Returns an ordered list of attribute names"""
         return [
@@ -173,6 +188,16 @@ class ExtractedCell(IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
+    @property
+    def preferred_ordering(self):
+        return [
+            'id',
+            'sample',
+            'protocol',
+            'storage_location',
+            'notes',
+        ]
 
 
 class ExtractedDNA(IndexByGroup):
@@ -274,6 +299,20 @@ class SAGPlate(IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
+    @property
+    def preferred_ordering(self):
+        return ['id',
+                'uid',
+                'barcode',
+                'extracted_cell',
+                'storage_location',
+                'protocol',
+                'report',
+                'qpcr',
+                'rt_mda',
+                'notes',
+        ]
 
 
 class SAGPlateDilution(IndexByGroup):

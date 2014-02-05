@@ -7,7 +7,7 @@ from base import *
 ########## THIRD PARTY IMPORTS
 import ldap
 import logging
-from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+from django_auth_ldap.config import LDAPSearch, PosixGroupType
 ########## END THIRD PARTY IMPORTS
 
 ########## DEBUG CONFIGURATION
@@ -29,11 +29,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': normpath(join(DJANGO_ROOT, 'lims_project.sqlite')),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'django',
+        'USER': 'django',
+        'PASSWORD': 'django',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
@@ -84,34 +84,50 @@ logger = logging.getLogger('django_auth_ldap')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
+# Baseline configuration
 AUTH_LDAP_SERVER_URI = "ldap://helicoprion.icm.uu.se:389"
 AUTH_LDAP_BIND_DN = ''
 AUTH_LDAP_BIND_PASSWORD = ''
 AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=people,dc=icm,dc=uu,dc=se", ldap.SCOPE_SUBTREE, "(uid=%(user)s)",)
-#AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=people,dc=icm,dc=uu,dc=se", ldap.SCOPE_SUBTREE, "(objectClass=inetOrgPerson)")
-#
-#AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
-#AUTH_LDAP_FIND_GROUP_PERMS = True
-#AUTH_LDAP_CACHE_GROUPS = True
-#AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
-AUTH_LDAP_GLOBAL_OPTIONS = {
-    ldap.OPT_X_TLS_REQUIRE_CERT: False,
-    ldap.OPT_REFERRALS: False,
+
+# Basic group parameters
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=people,dc=icm,dc=uu,dc=se", ldap.SCOPE_SUBTREE)
+AUTH_LDAP_GROUP_TYPE = PosixGroupType()
+
+# Simple group restrictions
+#AUTH_LDAP_REQUIRE_GROUP = ""
+#AUTH_LDAP_DENY_GROUP
+
+
+# Populate the Django user form the LDAP directory.
+AUTH_LDAP_USER_ATTR_MAP = {
+    "fulllname": "uid",
 }
 
 AUTH_LDAP_PROFILE_ATTR_MAP = {
     "fullname": "uid",
 }
 
-AUTH_LDAP_USER_ATTR_MAP = {
-    "fulllname": "uid",
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": "cn=users,ou=group,dc=icm,dc=uu,dc=se",
+    "is_staff": "cn=users,ou=group,dc=icm,dc=uu,dc=se",
+    "is_superuser": "cn=users,ou=group,dc=icm,dc=uu,dc=se",
 }
+
 # This is the default, but I like to be explicit.
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
 
-#AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-#    "is_staff":  "ou=people,dc=icm,dc=uu,dc=se",
-#}
+# Use LDAP group membership to calculate group permissions
+AUTH_LDAP_FIND_GROUP_PERMS = True
+
+# Cache group memberships for an hour to minimize LDAP traffic
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+AUTH_LDAP_GLOBAL_OPTIONS = {
+    ldap.OPT_X_TLS_REQUIRE_CERT: False,
+    ldap.OPT_REFERRALS: False,
+}
 
 AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
