@@ -1,0 +1,7 @@
+{% extends "lims/base.html" %}
+{% block content %}
+{% with objectname|slugify as slug %}
+<a href="{% url "lims.views.index" %}">LIMS</a> > {% firstof object.verbose_name_plural objectname|add:"s" %} > <a href="{% url "lims.views."|add:slug object.id %}">{% firstof object.uid object.id %}</a>
+{% endwith %}
+{% include "lims/objecttable.html" with objectname=objectname object=object only %}
+{% endblock %}

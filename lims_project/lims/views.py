@@ -1,4 +1,9 @@
+from __future__ import print_function
+
+import sys
+
 from django.shortcuts import render
+from django.http import Http404
 
 from lims.models import Collaborator, Sample, SAGPlate, ExtractedCell
 
@@ -18,7 +23,7 @@ def get_attr_list(obj):
 def default_object_table(obj):
     def func(request, obj_id):
         o = obj.objects.get(pk=obj_id)
-        return render(request, 'lims/objecttable.html',
+        return render(request, 'lims/object.html',
                       {'objectname': obj.__name__, 'object': o})
     return func
 
@@ -33,7 +38,16 @@ def sample_detail(request, sample_id):
 
 def sagplate_detail(request, sagplate_id):
     sagplate = SAGPlate.objects.get(pk=sagplate_id)
-    print dict([(k, getattr(sagplate, k)) for k in sagplate.preferred_ordering()])
     return render(request, 'lims/table.html',
         {'tablename': 'SAGPlate', 'rows':
         [(k, getattr(sagplate, k)) for k in sagplate.preferred_ordering()]})
+
+
+def barcode_search(request, barcode):
+    if barcode.startswith("SA:"):
+        s = list(Sample.objects.filter(uid=barcode[3:]))
+        if len(s) == 1:
+            return default_object_table(Sample)(request, s[0].id)
+        else:
+            print("ERR: More than one or zero samples with given barcode", file=sys.stderr)
+    raise Http404

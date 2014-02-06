@@ -1,9 +1,22 @@
-{% if collaborators %}
-    <ul>
-    {% for c in collaborators %}
-        <li>{{ c.first_name }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No collaborators are available.</p>
-{% endif %}
+{% extends "lims/base.html" %}
+{% block content %}
+<div class="center">
+<h1>Welcome to the SiCell LIMS</h1>
+<p>
+<br />
+Search for a barcode:
+<br />
+<br />
+<form role="form" action="{{ url "lims.views.barcode_search" }}">  
+    <div class="span6 center">
+        <div class="form-group col-sm-3 center">
+            <label for="inputBarcode" class="control-label">Barcode</label>
+            <input id="inputBarcode" type="text" class="form-control">  
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary">Search</button>  
+    </div>
+</form>
+</p>
+</div>
+{% endblock %}

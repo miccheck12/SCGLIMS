@@ -4,3 +4,8 @@ body {
 .starter-template {
     padding: 40px 15px;
 }
+.center {
+    float: none;
+    margin: 0 auto;
+    text-align: center;
+}

@@ -89,8 +89,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# 2scoops ---------------------->>>>>>>>>>>>>>>>>>>>
-
-########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+
+# Add request in templates
+# http://stackoverflow.com/questions/15436407
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request",
+)
