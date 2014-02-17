@@ -7,16 +7,29 @@
 Search for a barcode:
 <br />
 <br />
-<form role="form" action="{{ url "lims.views.barcode_search" }}">  
-    <div class="span6 center">
-        <div class="form-group col-sm-3 center">
-            <label for="inputBarcode" class="control-label">Barcode</label>
-            <input id="inputBarcode" type="text" class="form-control">  
-        </div>
-        <br />
-        <button type="submit" class="btn btn-primary">Search</button>  
+<div class="span6 center">
+    <div class="form-group col-sm-3 center">
+        <label for="inputBarcode" class="control-label">Barcode</label>
+        <input id="inputBarcode" type="text" class="form-control">  
     </div>
-</form>
+    <br />
+    <button id="searchButton" type="button" class="btn btn-primary">Search</button>  
+</div>
 </p>
 </div>
+{% endblock %}
+{% block custom_js %}
+<script>
+    /* Search barcode from textfield */
+    $('#searchButton').click(function() {
+        window.location = '/lims/barcode/' + $('#inputBarcode').val();
+    });
+
+    /* Fire click on searchButton when Enter is pressed in the input field */
+    $('#inputBarcode').keyup(function(e) {
+        if (e.keyCode == 13) {
+            $('#searchButton').click()
+        }
+    });
+</script>
 {% endblock %}

@@ -245,6 +245,18 @@ class ExtractedDNA(IndexByGroup):
     def __unicode__(self):
         return self.uid
 
+    @property
+    def preferred_ordering(self):
+        return [
+            'id',
+            'uid',
+            'sample',
+            'protocol',
+            'storage_location',
+            'notes',
+            'extracted_cell',
+        ]
+
 
 class QPCR(models.Model):
     report = models.CharField(max_length=100)
@@ -363,6 +375,13 @@ class Metagenome(IndexByGroup):
     def __unicode__(self):
         return self.uid
 
+    @property
+    def preferred_ordering(self):
+        return ['id',
+                'uid',
+                'diversity_report',
+        ]
+
 
 class Primer(models.Model):
     sequence = models.TextField()
@@ -427,6 +446,18 @@ class SAG(models.Model):
     def __unicode__(self):
         return self.uid
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'uid',
+            'sag_plate',
+            'sag_plate_dilution',
+            'well',
+            'concentration',
+        ]
+
 
 class PureCulture(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
@@ -448,6 +479,16 @@ class PureCulture(IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'uid',
+            'extracted_dna',
+            'concentration',
+        ]
 
 
 class DNALibrary(IndexByGroup):
@@ -516,6 +557,22 @@ class DNALibrary(IndexByGroup):
     def __unicode__(self):
         return "%s" % (self.uid)
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'uid',
+            'buffer',
+            'i7',
+            'i5',
+            'sample_name_on_platform',
+            'protocol',
+            'storage_location',
+            'dna_type',
+            'group',
+        ]
+
 
 class SequencingRun(models.Model):
     uid = models.CharField("UID", max_length=100, unique=True)
@@ -541,6 +598,20 @@ class ReadFile(models.Model):
     read_count = models.PositiveIntegerField()
     dna_library = models.ForeignKey(DNALibrary)
     sequencing_run = models.ForeignKey(SequencingRun)
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'filename',
+            'pair',
+            'lane',
+            'read_count',
+            'dna_library',
+            'sequencing_run',
+        ]
+
 
 
 class UserProfile(AbstractUser):

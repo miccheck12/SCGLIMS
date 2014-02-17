@@ -27,6 +27,6 @@ urlpatterns = patterns(*['lims.views'] +
     default_model_views() +
     [
     url(r'^$', views.index, name='index'),
-    url(r'^tree/sample/(\d+)/$', views.sample_detail, name='sample_detail'),
+    url(r'^tree/sample/(\d+)/$', views.sample_tree_json, name='sample_tree'),
     url(r'^barcode/(.*)/$', views.barcode_search, name='barcode_search')]
 )
