@@ -4,4 +4,10 @@
 <a href="{% url "lims.views.index" %}">LIMS</a> > {% firstof object.verbose_name_plural objectname|add:"s" %} > <a href="{% url "lims.views."|add:slug object.id %}">{% firstof object.uid object.id %}</a>
 {% endwith %}
 {% include "lims/objecttable.html" with objectname=objectname object=object only %}
+{% if object.sample %}
+<a href="{% url "lims.views.sample_tree_json" object.sample.id %}">View Sample Tree</a>
+{% endif %}
+{% if objectname == "Sample" %}
+<a href="{% url "lims.views.sample_tree_json" object.id %}">View Sample Tree</a>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,3 @@
+id,uid,collaborator,sample_type,sample_location,storage_location,temperature,ph,salinity,depth,gps,shipping_method,storage_medium,date_received,biosafety_level,status,notes,extra_column1,extra_column2
+,Aloha,1,1,1,1,,,,,,,,2014-2-1,,,,random,uknowit
+,Alohb,1,1,1,1,,,,,,,,2014-2-1,,,,haha,ola

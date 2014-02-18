@@ -2,10 +2,14 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
+from import_export.admin import ImportExportModelAdmin
+
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     StorageLocation, Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
     Amplicon, SAG, PureCulture, ReadFile
+
+from lims.import_export_resources import SampleResource
 
 standard_models = [SampleType, SampleLocation, StorageLocation, QPCR, RTMDA,
                    Amplicon]
@@ -25,7 +29,9 @@ def create_modeladmin(modeladmin, model, name = None):
     admin.site.register(newmodel, modeladmin)
     return modeladmin
 
-class SampleAdmin(admin.ModelAdmin):
+
+class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    resource_class = SampleResource
     editables = [
         'collaborator',
         'sample_type',
@@ -63,7 +69,7 @@ class SampleAdmin(admin.ModelAdmin):
             self.list_editable = []
 
         # redirect to parameterless if object is saved
-        if request.POST.has_key("_save"):
+        if "_save" in request.POST:
             return HttpResponseRedirect(reverse("admin:lims_sample_changelist"))
 
         return super(SampleAdmin, self).changelist_view(request,

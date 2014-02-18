@@ -293,6 +293,10 @@ class SAGPlate(IndexByGroup):
     character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
 
     @property
+    def sample(self):
+        return self.group
+
+    @property
     def group(self):
         return self.extracted_cell.sample
 
@@ -336,8 +340,12 @@ class SAGPlateDilution(IndexByGroup):
     character_list = [chr(ord('a') + i) for i in range(26)] + range(10)  # [a-z0-9]
 
     @property
+    def sample(self):
+        return self.group
+
+    @property
     def group(self):
-        return self.extracted_cell.sample
+        return self.sag_plate.extracted_cell.sample
 
     @property
     def barcode(self):
@@ -362,6 +370,10 @@ class Metagenome(IndexByGroup):
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
+
+    @property
+    def sample(self):
+        return self.group
 
     @property
     def group(self):
@@ -403,6 +415,10 @@ class Amplicon(IndexByGroup):
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
+
+    @property
+    def sample(self):
+        return self.group
 
     @property
     def group(self):
@@ -447,6 +463,16 @@ class SAG(models.Model):
         return self.uid
 
     @property
+    def sample(self):
+        if self.sag_plate:
+            return self.sag_plate.sample
+        elif self.sag_plate_dilution:
+            return self.sag_plate_dilution.sample
+        else:
+            raise(Exception("Invalid object. Should belong to SAGPlate or "
+                            "SAGPlateDilution"))
+
+    @property
     def preferred_ordering(self):
         """Returns an ordered list of attribute names"""
         return [
@@ -467,6 +493,10 @@ class PureCulture(IndexByGroup):
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
+
+    @property
+    def sample(self):
+        return self.group
 
     @property
     def group(self):
@@ -529,6 +559,10 @@ class DNALibrary(IndexByGroup):
                 "Pure DNA"  : "pure_culture__id",
                 "Metagenome": "metagenome__id",
                }[self.dna_type]
+
+    @property
+    def sample(self):
+        return self.group.sample
 
     @property
     def group(self):

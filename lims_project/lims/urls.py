@@ -16,7 +16,7 @@ def default_model_views():
     # Create urls for all models in lims if they have a preffered_ordering
     # attribute
     for model in get_models(app_mod=lims.models):
-        print(model.__name__, file=sys.stderr)
+        #print(model.__name__, file=sys.stderr)
         if hasattr(model, 'preferred_ordering'):
             urls += [url(r'^' + slugify(model.__name__) + r'/(\d)/$', views.default_object_table(model), name='lims.views.' + slugify(model.__name__))]
 
