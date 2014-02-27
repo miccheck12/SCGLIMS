@@ -5,20 +5,21 @@ from django.http import HttpResponseRedirect
 from import_export.admin import ImportExportModelAdmin
 
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
-    StorageLocation, Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
+    Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
     Amplicon, SAG, PureCulture, ReadFile
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [SampleType, SampleLocation, StorageLocation, QPCR, RTMDA,
+standard_models = [SampleType, SampleLocation, QPCR, RTMDA,
                    Amplicon]
 
 for model in standard_models:
     admin.site.register(model)
 
-def create_modeladmin(modeladmin, model, name = None):
-    class  Meta:
+
+def create_modeladmin(modeladmin, model, name=None):
+    class Meta:
         proxy = True
         app_label = model._meta.app_label
 
@@ -42,8 +43,7 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         'salinity',
         'depth',
         'shipping_method',
-        'storage_location',
-        'storage_medium',
+        'container',
         'biosafety_level',
         'status',
     ]
@@ -77,6 +77,7 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 admin.site.register(Sample, SampleAdmin)
 
+
 class CollaboratorAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -88,6 +89,7 @@ class CollaboratorAdmin(admin.ModelAdmin):
     ]
 admin.site.register(Collaborator, CollaboratorAdmin)
 
+
 class ExtractedCellAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -97,11 +99,12 @@ class ExtractedCellAdmin(admin.ModelAdmin):
         'protocol',
         'index_by_group',
         'protocol',
-        'storage_location',
+        'container',
         'notes'
     ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
+
 
 class ExtractedDNAAdmin(admin.ModelAdmin):
     list_display = [
@@ -112,11 +115,14 @@ class ExtractedDNAAdmin(admin.ModelAdmin):
         'protocol',
         'index_by_group',
         'protocol',
-        'storage_location',
-        'notes'
+        'container',
+        'concentration',
+        'buffer',
+        'notes',
     ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
+
 
 class SAGPlateAdmin(admin.ModelAdmin):
     list_display = [
@@ -124,7 +130,7 @@ class SAGPlateAdmin(admin.ModelAdmin):
         'uid',
         'barcode',
         'extracted_cell',
-        'storage_location',
+        'apparatus_subdivision',
         'protocol',
         'report',
         'qpcr',
@@ -133,6 +139,7 @@ class SAGPlateAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(SAGPlate, SAGPlateAdmin)
+
 
 class SAGPlateDilutionAdmin(admin.ModelAdmin):
     list_display = [
@@ -146,6 +153,7 @@ class SAGPlateDilutionAdmin(admin.ModelAdmin):
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(SAGPlateDilution, SAGPlateDilutionAdmin)
 
+
 class DNALibraryAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -158,20 +166,22 @@ class DNALibraryAdmin(admin.ModelAdmin):
         'i7',
         'i5',
         'sample_name_on_platform',
-        'storage_location',
+        'container',
     ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(DNALibrary, DNALibraryAdmin)
+
 
 class PrimerAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'concentration',
         'tmelt',
-        'storage_location',
+        'container',
         'stock',
     ]
 admin.site.register(Primer, PrimerAdmin)
+
 
 class MetagenomeAdmin(admin.ModelAdmin):
     list_display = [
@@ -181,6 +191,7 @@ class MetagenomeAdmin(admin.ModelAdmin):
         'diversity_report',
     ]
 admin.site.register(Metagenome, MetagenomeAdmin)
+
 
 class SAGAdmin(admin.ModelAdmin):
     list_display = [
@@ -193,6 +204,7 @@ class SAGAdmin(admin.ModelAdmin):
     ]
 admin.site.register(SAG, SAGAdmin)
 
+
 class PureCultureAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -201,6 +213,7 @@ class PureCultureAdmin(admin.ModelAdmin):
         'concentration'
     ]
 admin.site.register(PureCulture, PureCultureAdmin)
+
 
 class SequencingRunAdmin(admin.ModelAdmin):
     list_display = [
@@ -216,6 +229,7 @@ class SequencingRunAdmin(admin.ModelAdmin):
     ]
 admin.site.register(SequencingRun, SequencingRunAdmin)
 
+
 class ReadFileAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -228,6 +242,7 @@ class ReadFileAdmin(admin.ModelAdmin):
     ]
 admin.site.register(ReadFile, ReadFileAdmin)
 
+
 class ProtocolAdmin(admin.ModelAdmin):
     list_display = [
         'name',
@@ -236,6 +251,7 @@ class ProtocolAdmin(admin.ModelAdmin):
         'notes',
     ]
 admin.site.register(Protocol, ProtocolAdmin)
+
 
 # DEPRECATED -->
 class DNALibraryAdmin(admin.ModelAdmin):
@@ -250,9 +266,10 @@ class DNALibraryAdmin(admin.ModelAdmin):
                 kwargs['blank'] = False
             return super(DNALibraryAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
 
+
 def generate_all_fields_admin(classname):
         return type(classname.__name__ + "Admin", (admin.ModelAdmin,),
-                    {'list_display': ([name for name in classname._meta.get_all_field_names() if name \
+                    {'list_display': ([name for name in classname._meta.get_all_field_names() if name
                     not in ['amplicon', 'extractedcell', 'extracteddna',
-                            'metagenome', 'id', 'uid','sample']])})
+                            'metagenome', 'id', 'uid', 'sample']])})
 # END DEPRECATED <--
