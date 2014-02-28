@@ -133,5 +133,4 @@ AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
-AUTH_USER_MODEL = "lims.UserProfile"
 ########## END LDAP CONFIGURATION

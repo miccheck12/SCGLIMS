@@ -105,3 +105,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     "django.core.context_processors.request",
 )
+
+# Change user model
+AUTH_USER_MODEL = "lims.UserProfile"
