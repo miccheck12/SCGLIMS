@@ -9,11 +9,11 @@ from import_export.admin import ImportExportModelAdmin
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
-    Amplicon, SAG, PureCulture, ReadFile
+    Amplicon, SAG, PureCulture, ReadFile, Container
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [QPCR, RTMDA]
+standard_models = [QPCR, RTMDA, Container]
 
 for model in standard_models:
     admin.site.register(model)
@@ -69,9 +69,11 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         'uid',
         'barcode',
     ] + editables
+    # import_export change template to include csv
+    import_template_name = 'import_export/lims_import.html'
 
-    class Media:
-        js = ('lims/admin_edit_button.js',)
+    #class Media:
+    #    js = ('lims/admin_edit_button.js',)
 
     def response_change(self, request, obj, post_url_continue=None):
         """This makes the response after changing go back to parameterless

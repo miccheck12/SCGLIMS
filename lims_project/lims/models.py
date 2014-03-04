@@ -171,6 +171,7 @@ class Sample(StorablePhysicalObject, models.Model):
     status = models.CharField(max_length=8,
         choices=(('new', 'new'), ('used', 'used'), ('finished', 'finished')), blank=True, null=True)
     notes = models.TextField(blank=True)
+    extra_columns_json = models.TextField(blank=True)
 
     @property
     def barcode(self):

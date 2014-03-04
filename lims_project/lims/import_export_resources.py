@@ -31,7 +31,7 @@ class LIMSForeignKeyWidget(Widget):
 
 
 class SampleResource(resources.ModelResource):
-    collaborator = fields.Field(attribute='collaborator', column_name='collaborator', widget=LIMSForeignKeyWidget(Collaborator))
+    #collaborator = fields.Field(attribute='collaborator', column_name='collaborator', widget=LIMSForeignKeyWidget(Collaborator))
 
     def before_import(self, dataset, dry_run):
         nr_core_sample_cols = 17
@@ -43,10 +43,10 @@ class SampleResource(resources.ModelResource):
                 ecd_row[dataset.headers[i]] = row[i]
             extra_column_data.append(json.dumps(ecd_row))
 
-        print(dataset['extra_column1'], file=sys.stderr)
-        del dataset['notes']
-        dataset.append_col(extra_column_data, header='notes')
-        print(dataset['notes'], file=sys.stderr)
+        #print(dataset['extra_column1'], file=sys.stderr)
+        del dataset['extra_columns_json']
+        dataset.append_col(extra_column_data, header='extra_columns_json')
+        #print(dataset['extra_columns_json'], file=sys.stderr)
 
     class Meta:
         model = Sample

@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# INSTALLED_APPS order matters for finding templates
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
