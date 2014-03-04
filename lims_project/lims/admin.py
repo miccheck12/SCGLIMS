@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry, DELETION
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.utils.html import escape
 
 from import_export.admin import ImportExportModelAdmin
 
@@ -11,8 +13,7 @@ from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [SampleType, SampleLocation, QPCR, RTMDA,
-                   Amplicon]
+standard_models = [QPCR, RTMDA]
 
 for model in standard_models:
     admin.site.register(model)
@@ -29,6 +30,22 @@ def create_modeladmin(modeladmin, model, name=None):
 
     admin.site.register(newmodel, modeladmin)
     return modeladmin
+
+
+class AmpliconAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'uid',
+        'sample',
+        'extracted_dna',
+        'index_by_group',
+        'diversity_report',
+        'container',
+        'buffer',
+        'notes',
+    ]
+    readonly_fields = ('index_by_group', 'uid')
+admin.site.register(Amplicon, AmpliconAdmin)
 
 
 class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -251,6 +268,58 @@ class ProtocolAdmin(admin.ModelAdmin):
         'notes',
     ]
 admin.site.register(Protocol, ProtocolAdmin)
+
+
+class LogEntryAdmin(admin.ModelAdmin):
+    """From: https://djangosnippets.org/snippets/2484/"""
+    date_hierarchy = 'action_time'
+    readonly_fields = LogEntry._meta.get_all_field_names()
+    list_filter = [
+        'user',
+        'content_type',
+        'action_flag'
+    ]
+    search_fields = [
+        'object_repr',
+        'change_message'
+    ]
+    list_display = [
+        'action_time',
+        'user',
+        'content_type',
+        'object_link',
+        'action_flag',
+        'change_message',
+    ]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser and request.method != 'POST'
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def object_link(self, obj):
+        if obj.action_flag == DELETION:
+            link = escape(obj.object_repr)
+        else:
+            ct = obj.content_type
+            link = u'<a href="%s">%s</a>' % (
+                reverse('admin:%s_%s_change' % (ct.app_label, ct.model), args=[obj.object_id]),
+                escape(obj.object_repr),
+            )
+        return link
+    object_link.allow_tags = True
+    object_link.admin_order_field = 'object_repr'
+    object_link.short_description = u'object'
+
+    def queryset(self, request):
+        return super(LogEntryAdmin, self).queryset(request) \
+            .prefetch_related('content_type')
+
+admin.site.register(LogEntry, LogEntryAdmin)
 
 
 # DEPRECATED -->

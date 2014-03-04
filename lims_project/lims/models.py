@@ -48,6 +48,9 @@ class Container(models.Model):
     def barcode(self):
         return "CO:%06d" % (self.pk)
 
+    def __unicode__(self):
+        return self.barcode
+
 
 class StorablePhysicalObject(models.Model):
     container = models.OneToOneField(Container)
@@ -464,13 +467,17 @@ class Primer(StorablePhysicalObject):
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
     stock = models.PositiveIntegerField()
+    notes = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return "Primer %d" % self.pk
 
 
 class Amplicon(StorablePhysicalObject, IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
     buffer = models.CharField(max_length=100)
-    notes = models.TextField()
+    notes = models.TextField(blank=True)
     primer = models.ManyToManyField(Primer)
 
     group_id_keyword = "extracted_dna__sample__id"
