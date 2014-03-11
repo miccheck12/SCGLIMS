@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 
 class Apparatus(models.Model):
@@ -8,14 +9,16 @@ class Apparatus(models.Model):
     temperature = models.DecimalField(u"Temperature \u00B0C", max_digits=10,
         decimal_places=2, blank=True, null=True)
     location = models.CharField(max_length=100)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
 
-class ApparatusSubDivision(models.Model):
+class ApparatusSubdivision(models.Model):
     """An apparatus can have multiple shelves or racks. If the machine has only
     one location to store things it should still have a record here, see
     Container documentation."""
     name = models.CharField(max_length=100)
     apparatus = models.ForeignKey(Apparatus)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
 
 class ContainerType(models.Model):
@@ -23,6 +26,7 @@ class ContainerType(models.Model):
     etc."""
     name = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
 
 class Container(models.Model):
@@ -40,9 +44,10 @@ class Container(models.Model):
     parent = models.ForeignKey('self', blank=True, null=True,
                                help_text="Parent container",
                                related_name="child")
-    apparatus_subdivision = models.ForeignKey(ApparatusSubDivision, blank=True,
+    apparatus_subdivision = models.ForeignKey(ApparatusSubdivision, blank=True,
                                               null=True)
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     @property
     def barcode(self):
@@ -116,6 +121,7 @@ class Collaborator(models.Model):
     phone = models.CharField(max_length=100)
     email = models.EmailField()
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
         return "%s %s" % (self.first_name, self.last_name)
@@ -138,6 +144,7 @@ class Collaborator(models.Model):
 class SampleType(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -146,6 +153,7 @@ class SampleType(models.Model):
 class SampleLocation(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -165,13 +173,14 @@ class Sample(StorablePhysicalObject, models.Model):
     depth = models.DecimalField("Depth (m)", max_digits=10, decimal_places=2, blank=True, null=True)
     gps = models.CharField("GPS", max_length=30, blank=True)
     shipping_method = models.CharField(max_length=30, blank=True)
-    date_received = models.DateField(blank=True)
+    date_received = models.DateTimeField(default=timezone.now, blank=True)
     biosafety_level = models.IntegerField(
         choices=((1, 1), (2, 2), (3, 3), (4, 4)), blank=True, null=True)
     status = models.CharField(max_length=8,
         choices=(('new', 'new'), ('used', 'used'), ('finished', 'finished')), blank=True, null=True)
     notes = models.TextField(blank=True)
     extra_columns_json = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     @property
     def barcode(self):
@@ -208,6 +217,7 @@ class Protocol(models.Model):
     revision = models.CharField(max_length=30)
     link = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
         return "%s" % (self.name)
@@ -217,6 +227,7 @@ class ExtractedCell(StorablePhysicalObject, IndexByGroup):
     sample = models.ForeignKey(Sample)
     protocol = models.ForeignKey(Protocol)
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "sample__id"
 
@@ -255,6 +266,7 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
     buffer = models.CharField(max_length=100)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     @property
     def group_id_keyword(self):
@@ -311,6 +323,7 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
 
 class QPCR(models.Model):
     report = models.CharField(max_length=100)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     class Meta:
         verbose_name = "QPCR"
@@ -322,6 +335,7 @@ class QPCR(models.Model):
 
 class RTMDA(models.Model):
     report = models.CharField(max_length=100)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     class Meta:
         verbose_name = "RT-MDA kinetics"
@@ -338,11 +352,12 @@ class SAGPlate(IndexByGroup):
     similar to Container."""
     report = models.CharField(max_length=100)
     protocol = models.ForeignKey(Protocol)
-    apparatus_subdivision = models.ForeignKey(ApparatusSubDivision)
+    apparatus_subdivision = models.ForeignKey(ApparatusSubdivision)
     notes = models.TextField(blank=True)
     extracted_cell = models.ForeignKey(ExtractedCell)
     rt_mda = models.ForeignKey(RTMDA)
     qpcr = models.ForeignKey(QPCR)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
@@ -387,10 +402,11 @@ class SAGPlate(IndexByGroup):
 
 class SAGPlateDilution(IndexByGroup):
     sag_plate = models.ForeignKey(SAGPlate)
-    apparatus_subdivision = models.ForeignKey(ApparatusSubDivision)
+    apparatus_subdivision = models.ForeignKey(ApparatusSubdivision)
     dilution = models.CharField(max_length=100)
     qpcr = models.ForeignKey(QPCR)
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('a') + i) for i in range(26)] + range(10)  # [a-z0-9]
@@ -433,6 +449,7 @@ class SAGPlateDilution(IndexByGroup):
 class Metagenome(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
@@ -469,6 +486,7 @@ class Primer(StorablePhysicalObject):
                                         decimal_places=5)
     stock = models.PositiveIntegerField()
     notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
         return "Primer %d" % self.pk
@@ -480,6 +498,7 @@ class Amplicon(StorablePhysicalObject, IndexByGroup):
     buffer = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
     primer = models.ManyToManyField(Primer)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
@@ -508,6 +527,7 @@ class SAG(models.Model):
     concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def save(self):
         if sum((bool(self.sag_plate_dilution),
@@ -553,11 +573,12 @@ class SAG(models.Model):
         ]
 
 
-class PureCulture(IndexByGroup):
+class DNAFromPureCulture(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
@@ -588,12 +609,15 @@ class PureCulture(IndexByGroup):
             'concentration',
         ]
 
+    class Meta:
+        verbose_name = "DNA from pure culture"
+
 
 class DNALibrary(StorablePhysicalObject, IndexByGroup):
     amplicon = models.ForeignKey(Amplicon, blank=True, null=True)
     metagenome = models.ForeignKey(Metagenome, blank=True, null=True)
     sag = models.ForeignKey(SAG, null=True, blank=True, verbose_name="SAG")
-    pure_culture = models.ForeignKey(PureCulture, blank=True, null=True)
+    pure_culture = models.ForeignKey(DNAFromPureCulture, blank=True, null=True)
 
     buffer = models.CharField(max_length=100)
     i7 = models.CharField(max_length=100)
@@ -602,6 +626,7 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
 
     #fastq_files
     protocol = models.ForeignKey(Protocol)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
@@ -676,15 +701,14 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
 
 class SequencingRun(models.Model):
     uid = models.CharField("UID", max_length=100, unique=True)
-    date = models.DateField()
     sequencing_center = models.CharField(max_length=100)
     machine = models.CharField(max_length=100)
     report = models.CharField(max_length=100)
     folder = models.CharField(max_length=100)
     notes = models.TextField()
     dna_library = models.ManyToManyField(DNALibrary)
-
     protocol = models.ForeignKey(Protocol)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
         return "%s" % (self.uid)
@@ -698,6 +722,7 @@ class ReadFile(models.Model):
     read_count = models.PositiveIntegerField()
     dna_library = models.ForeignKey(DNALibrary)
     sequencing_run = models.ForeignKey(SequencingRun)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     @property
     def preferred_ordering(self):
@@ -715,6 +740,7 @@ class ReadFile(models.Model):
 
 class UserProfile(AbstractUser):
     fullname = models.CharField(max_length=30, unique=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
 
     #USERNAME_FIELD = 'fullname'
     #REQUIRED_FIELDS = ['']

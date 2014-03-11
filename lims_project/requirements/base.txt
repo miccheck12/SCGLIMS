@@ -1,8 +1,7 @@
 Django==1.6.1
-django-csvimport==1.0
-django-import-export==0.2.1
 django-debug-toolbar==1.0.1
 django-discover-runner==0.4
 South==0.8.4
 coverage==3.6
 django-bootstrap3==2.5.6
+-e git://github.com/bmihelac/django-import-export.git@77395d0aef1ce29ce8704c044aae07a177d46ab3#egg=django-import-export

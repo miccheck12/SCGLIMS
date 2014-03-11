@@ -9,7 +9,7 @@ from import_export.admin import ImportExportModelAdmin
 from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
-    Amplicon, SAG, PureCulture, ReadFile, Container
+    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container
 
 from lims.import_export_resources import SampleResource
 
@@ -224,14 +224,14 @@ class SAGAdmin(admin.ModelAdmin):
 admin.site.register(SAG, SAGAdmin)
 
 
-class PureCultureAdmin(admin.ModelAdmin):
+class DNAFromPureCultureAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'uid',
         'extracted_dna',
         'concentration'
     ]
-admin.site.register(PureCulture, PureCultureAdmin)
+admin.site.register(DNAFromPureCulture, DNAFromPureCultureAdmin)
 
 
 class SequencingRunAdmin(admin.ModelAdmin):
@@ -246,6 +246,7 @@ class SequencingRunAdmin(admin.ModelAdmin):
         'notes',
         'protocol',
     ]
+    filter_horizontal = ['dna_library']
 admin.site.register(SequencingRun, SequencingRunAdmin)
 
 
