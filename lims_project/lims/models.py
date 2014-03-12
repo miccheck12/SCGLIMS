@@ -3,6 +3,15 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
 
+def property_verbose(description):
+    """Make the function a property and give it a description. Normal property
+    decoration does not work with short_description"""
+    def property_verbose_inner(function):
+        function.short_description = description
+        return property(function)
+    return property_verbose_inner
+
+
 class Apparatus(models.Model):
     """Device that stores physical objects, could be a closet/freezer, etc."""
     name = models.CharField(max_length=100)
@@ -10,6 +19,12 @@ class Apparatus(models.Model):
         decimal_places=2, blank=True, null=True)
     location = models.CharField(max_length=100)
     date = models.DateTimeField(default=timezone.now, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Apparatus"
 
 
 class ApparatusSubdivision(models.Model):
@@ -20,6 +35,9 @@ class ApparatusSubdivision(models.Model):
     apparatus = models.ForeignKey(Apparatus)
     date = models.DateTimeField(default=timezone.now, blank=True)
 
+    def __unicode__(self):
+        return "{0} {1}".format(self.apparatus, self.name)
+
 
 class ContainerType(models.Model):
     """The type of container e.g. petri dish, 384 well plate, bag, well,
@@ -27,6 +45,9 @@ class ContainerType(models.Model):
     name = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
+
+    def __unicode__(self):
+        return self.name
 
 
 class Container(models.Model):
@@ -53,8 +74,38 @@ class Container(models.Model):
     def barcode(self):
         return "CO:%06d" % (self.pk)
 
+    @property_verbose("Root")
+    def root(self):
+        # Follow Container to root
+        root = self
+        while root.parent is not None:
+            root = root.parent
+        return root
+
+    @property_verbose("Apparatus")
+    def root_apparatus(self):
+        return self.root_apparatus_subdivision.apparatus
+
+    @property_verbose("Apparatus subdivision")
+    def root_apparatus_subdivision(self):
+        try:
+            return self.root.apparatus_subdivision
+        except:
+            raise(Exception("Database inconsistency! If parent is null, "
+                "apparatus_subdivision should be set"))
+
+    def save(self):
+        """Saves and checks whether either parent or apparatus_subdivision is
+        provided. Only the root Container with parent null should be linked to
+        an apparatus_subdivision."""
+        if bool(self.parent) != bool(self.apparatus_subdivision):
+            super(Container, self).save()
+        else:
+            raise(Exception("The root container should be linked to an "
+            "apparatus_subdivision. Child containers not."))
+
     def __unicode__(self):
-        return self.barcode
+        return "%s %s" % (self.type, self.barcode)
 
 
 class StorablePhysicalObject(models.Model):
@@ -102,15 +153,6 @@ class IndexByGroup(models.Model):
         abstract = True
 
     index_by_group = models.IntegerField(default="Automatically generated")
-
-
-def property_verbose(description):
-    """Make the function a property and give it a description. Normal property
-    decoration does not work with short_description"""
-    def property_verbose_inner(function):
-        function.short_description = description
-        return property(function)
-    return property_verbose_inner
 
 
 class Collaborator(models.Model):

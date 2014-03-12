@@ -3,17 +3,18 @@ from django.contrib.admin.models import LogEntry, DELETION
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import escape
+from django.utils.translation import ugettext_lazy as _
 
 from import_export.admin import ImportExportModelAdmin
 
-from lims.models import Collaborator, Sample, SampleType, SampleLocation, \
+from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
     Amplicon, SAG, DNAFromPureCulture, ReadFile, Container
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [QPCR, RTMDA, Container]
+standard_models = [QPCR, RTMDA, Apparatus]
 
 for model in standard_models:
     admin.site.register(model)
@@ -46,6 +47,60 @@ class AmpliconAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(Amplicon, AmpliconAdmin)
+
+
+class ContainerApparatusFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('Apparatus')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'apparatus'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return [(ap.id, _(str(ap))) for ap in Apparatus.objects.all()]
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        all_aps = [aps.id for aps in ApparatusSubdivision.objects.all()]
+        if self.value():
+            aps = [aps.id for aps in ApparatusSubdivision.objects.filter(apparatus=self.value())]
+            cons = Container.objects.filter(apparatus_subdivision__in=aps)
+            return queryset & cons
+
+
+class ContainerAdmin(admin.ModelAdmin):
+    list_filter = [
+        'type',
+        ContainerApparatusFilter,
+    ]
+    list_display = [
+        'id',
+        'barcode',
+        'root_apparatus',
+        'root_apparatus_subdivision',
+        'type',
+        'row',
+        'column',
+        'parent',
+        'get_nr_children',
+    ]
+
+    def get_nr_children(self, obj):
+        return "%s" % str(obj.child.count())
+    get_nr_children.short_description = "No of Children"
+admin.site.register(Container, ContainerAdmin)
 
 
 class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -93,6 +148,7 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
         return super(SampleAdmin, self).changelist_view(request,
                                                         extra_context=extra_context)
+    raw_id_fields = ("container",)
 
 admin.site.register(Sample, SampleAdmin)
 
