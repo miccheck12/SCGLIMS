@@ -96,6 +96,7 @@ class ContainerAdmin(admin.ModelAdmin):
         'parent',
         'get_nr_children',
     ]
+    raw_id_fields = ("parent",)
 
     def get_nr_children(self, obj):
         return "%s" % str(obj.child.count())

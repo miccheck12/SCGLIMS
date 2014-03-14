@@ -15,8 +15,11 @@ from lims.models import Collaborator, Sample, SAGPlate, SAGPlateDilution, Extrac
 
 
 def index(request):
-    collaborators = Collaborator.objects.all().order_by('last_name')
-    return render(request, 'lims/index.html', {'collaborators': collaborators})
+    return render(request, 'lims/index.html')
+
+
+def browse(request):
+    return render(request, 'lims/browse.html')
 
 
 def get_attr_list(obj):
@@ -31,6 +34,13 @@ def default_object_table(obj):
         o = obj.objects.get(pk=obj_id)
         return render(request, 'lims/object.html',
                       {'objectname': obj.__name__, 'object': o})
+    return func
+
+
+def default_object_list(obj):
+    def func(request):
+        return render(request, 'lims/object_list.html',
+                      {'objectname': obj.__name__, 'objects': list(obj.objects.all())})
     return func
 
 
@@ -93,6 +103,10 @@ def sagplate_detail(request, sagplate_id):
     return render(request, 'lims/table.html',
         {'tablename': 'SAGPlate', 'rows':
         [(k, getattr(sagplate, k)) for k in sagplate.preferred_ordering()]})
+
+
+def barcode_index(request):
+    return render(request, 'lims/barcode_index.html')
 
 
 def barcode_search(request, barcode):

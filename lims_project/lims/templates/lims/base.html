@@ -18,15 +18,13 @@
                 </button>
                 <a class="navbar-brand" href="{% url "lims.views.index" %}">LIMS</a>
             </div>
-            <!--
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li {% ifequal active 1 %}class="active"{% endifequal %}><a href="{% url "lims.views.index" %}">Home</a></li>
+                    <li {% ifequal active 2 %}class="active"{% endifequal %}><a href="{% url "lims.views.browse" %}">Browse</a></li>
+                    <li {% ifequal active 3 %}class="active"{% endifequal %}><a href="{% url "lims.views.barcode_index" %}">Barcode</a></li>
                 </ul>
             </div>
-            -->
         </div>
     </div>
     {% bootstrap_messages %}

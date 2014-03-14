@@ -1,0 +1,38 @@
+{% extends "lims/base.html" %}
+{% block bootstrap3_content %}
+    {% with active=2 %}
+    {{block.super}}
+    {% endwith %}
+{% endblock bootstrap3_content %}
+
+{% block content %}
+<div class="center">
+<h1>Browse the SiCell LIMS</h1>
+</div>
+<p>
+
+<h2>Storage</h2>
+<a href="{% url "lims.views.browse.apparatus" %}">Apparatus</a><br />
+
+<h2>People</h2>
+<a href="">Collaborators</a><br />
+
+<h2>Physical Objects</h2>
+<a href="{% url "lims.views.browse.sample" %}">Samples</a><br />
+<a href="{% url "lims.views.browse.sample" %}">DNA Libraries</a><br />
+<a href="{% url "lims.views.browse.sample" %}">Extracted DNA</a><br />
+<a href="{% url "lims.views.browse.sample" %}">Extracted Cells</a><br />
+<a href="{% url "lims.views.browse.sample" %}">Amplicons</a><br />
+<a href="{% url "lims.views.browse.sample" %}">SAG Plates</a><br />
+<a href="{% url "lims.views.browse.sample" %}">SAG Plate Dilutions</a><br />
+<a href="{% url "lims.views.browse.sample" %}">Primers</a><br />
+
+<h2>Data</h2>
+<a href="{% url "lims.views.browse.sequencingrun" %}">Sequencing Runs</a><br />
+<a href="{% url "lims.views.browse.sag" %}">SAGs</a><br />
+<a href="{% url "lims.views.browse.qpcr" %}">QPCRs</a><br />
+<a href="{% url "lims.views.browse.rtmda" %}">RT-MDA kinetics</a><br />
+
+
+</p>
+{% endblock %}

@@ -1,35 +1,18 @@
 {% extends "lims/base.html" %}
+{% block bootstrap3_content %}
+    {% with active=1 %}
+    {{block.super}}
+    {% endwith %}
+{% endblock bootstrap3_content %}
+
 {% block content %}
 <div class="center">
 <h1>Welcome to the SiCell LIMS</h1>
 <p>
 <br />
-Search for a barcode:
+<a href="{% url "lims.views.browse" %}">Browse</a> objects in the database.<br />
+<a href="{% url "lims.views.barcode_index" %}">Search</a> for a barcode.<br />
 <br />
-<br />
-<div class="span6 center">
-    <div class="form-group col-sm-3 center">
-        <label for="inputBarcode" class="control-label">Barcode</label>
-        <input id="inputBarcode" type="text" class="form-control">  
-    </div>
-    <br />
-    <button id="searchButton" type="button" class="btn btn-primary">Search</button>  
-</div>
 </p>
 </div>
-{% endblock %}
-{% block custom_js %}
-<script>
-    /* Search barcode from textfield */
-    $('#searchButton').click(function() {
-        window.location = '/lims/barcode/' + $('#inputBarcode').val();
-    });
-
-    /* Fire click on searchButton when Enter is pressed in the input field */
-    $('#inputBarcode').keyup(function(e) {
-        if (e.keyCode == 13) {
-            $('#searchButton').click()
-        }
-    });
-</script>
 {% endblock %}

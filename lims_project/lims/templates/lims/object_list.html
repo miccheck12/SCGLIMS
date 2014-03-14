@@ -1,0 +1,19 @@
+{% extends "lims/base.html" %}
+{% block bootstrap3_content %}
+    {% with active=2 %}
+    {{block.super}}
+    {% endwith %}
+{% endblock bootstrap3_content %}
+
+{% block content %}
+<div class="center">
+<h1>Browse the SiCell LIMS</h1>
+</div>
+<p>
+
+{% for o in objects %}
+<a href="">{{ o.uid }}</a><br />
+{% endfor %}
+
+</p>
+{% endblock %}
