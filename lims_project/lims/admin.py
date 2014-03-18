@@ -14,7 +14,7 @@ from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, S
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [QPCR, RTMDA, Apparatus]
+standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision]
 
 for model in standard_models:
     admin.site.register(model)
@@ -95,6 +95,8 @@ class ContainerAdmin(admin.ModelAdmin):
         'column',
         'parent',
         'get_nr_children',
+        'nr_objects_in_container',
+        'is_empty',
     ]
     raw_id_fields = ("parent",)
 

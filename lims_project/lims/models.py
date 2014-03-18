@@ -1,6 +1,10 @@
+from __future__ import print_function
+import sys
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def property_verbose(description):
@@ -49,6 +53,16 @@ class ApparatusSubdivision(models.Model):
     def __unicode__(self):
         return "{0} {1}".format(self.apparatus, self.name)
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'name',
+            'apparatus',
+            'date',
+        ]
+
 
 class ContainerType(models.Model):
     """The type of container e.g. petri dish, 384 well plate, bag, well,
@@ -59,6 +73,16 @@ class ContainerType(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'name',
+            'notes',
+            'date',
+        ]
 
 
 class Container(models.Model):
@@ -118,9 +142,76 @@ class Container(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.type, self.barcode)
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'type',
+            'row',
+            'column',
+            'parent',
+            'apparatus_subdivision',
+            'notes',
+            'date',
+        ]
+
+    def is_root(self):
+        """Check if container is a root container"""
+        return self.parent is None
+
+    def is_leaf(self):
+        """Check if container is a leaf container"""
+        return len(self.child.all()) == 0
+
+    def get_objects_in_container(self):
+        """Get all objects in the container. If this is not a leaf container,
+        also get child objects."""
+        objects = []
+        for ro in self._meta.get_all_related_objects():
+            if ro.get_accessor_name() in ['child']:
+                children = getattr(self, ro.get_accessor_name()).all()
+                for ch in children:
+                    objects.extend(ch.get_objects_in_container())
+            else:
+                try:
+                    obj = getattr(self, ro.get_accessor_name())
+                    objects.append(obj)
+                except ObjectDoesNotExist:
+                    continue
+        return objects
+
+    def nr_objects_in_container(self):
+        """Count number of objects in the container"""
+        return len(self.get_objects_in_container())
+
+    def is_empty(self):
+        """Checks if the container is empty. If the container is not a leaf
+        container, also check child containers."""
+        objects = self.get_objects_in_container()
+        if not self.is_root():
+            if len(objects) == 0:
+                return True
+            elif len(objects) == 1:
+                return False
+            elif len(objects) > 1:
+                raise(Exception("Multiple objects in leaf container! %s" % str(objects)))
+        else:
+            return len(objects) == 0
+
 
 class StorablePhysicalObject(models.Model):
     container = models.OneToOneField(Container)
+
+    def save(self):
+        if not self.container.is_leaf():
+            raise(Exception("Container %s is not a leaf container!" % self))
+        #TODO: The next line actually raises the exception in is_empty now
+        # because the object is created before it is saved
+        if not self.container.is_empty():
+            raise(Exception("Container %s is not empty! %s" %
+                            (self, self.container.get_objects_in_container())))
+        super(StorablePhysicalObject, self).save()
 
     class Meta:
         abstract = True
@@ -182,16 +273,7 @@ class Collaborator(models.Model):
     @property
     def preferred_ordering(self):
         """Returns an ordered list of attribute names"""
-        return [
-            'id',
-            'first_name',
-            'last_name',
-            'institution',
-            'address',
-            'phone',
-            'email',
-            'notes',
-        ]
+        return [f.attname for f in self._meta.fields]
 
 
 class SampleType(models.Model):
@@ -202,6 +284,11 @@ class SampleType(models.Model):
     def __unicode__(self):
         return "%s" % (self.name)
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
+
 
 class SampleLocation(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -210,6 +297,11 @@ class SampleLocation(models.Model):
 
     def __unicode__(self):
         return "%s" % (self.name)
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
 
 
 class Sample(StorablePhysicalObject, models.Model):
@@ -262,6 +354,8 @@ class Sample(StorablePhysicalObject, models.Model):
             'biosafety_level',
             'status',
             'notes',
+            'container',
+            'date',
         ]
 
 
@@ -370,7 +464,8 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
             'notes',
             'extracted_cell',
             'concentration',
-            'buffer'
+            'buffer',
+            'container',
         ]
 
 
@@ -384,6 +479,11 @@ class QPCR(models.Model):
 
     def __unicode__(self):
         return self.report
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
 
 
 class RTMDA(models.Model):
@@ -527,7 +627,8 @@ class Metagenome(IndexByGroup):
     def preferred_ordering(self):
         return ['id',
                 'uid',
-                'diversity_report']
+                'diversity_report',
+                'date']
 
 
 class Primer(StorablePhysicalObject):
@@ -543,6 +644,11 @@ class Primer(StorablePhysicalObject):
 
     def __unicode__(self):
         return "Primer %d" % self.pk
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
 
 
 class Amplicon(StorablePhysicalObject, IndexByGroup):
@@ -571,6 +677,11 @@ class Amplicon(StorablePhysicalObject, IndexByGroup):
 
     def __unicode__(self):
         return self.uid
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
 
 
 class SAG(models.Model):
@@ -769,18 +880,7 @@ class SequencingRun(models.Model):
     @property
     def preferred_ordering(self):
         """Returns an ordered list of attribute names"""
-        return [
-            'id',
-            'uid',
-            'sequencing_center',
-            'machine',
-            'report',
-            'folder',
-            'notes',
-            'dna_library',
-            'protocol',
-            'date',
-        ]
+        return [f.attname for f in self._meta.fields]
 
 
 class ReadFile(models.Model):
@@ -796,15 +896,7 @@ class ReadFile(models.Model):
     @property
     def preferred_ordering(self):
         """Returns an ordered list of attribute names"""
-        return [
-            'id',
-            'filename',
-            'pair',
-            'lane',
-            'read_count',
-            'dna_library',
-            'sequencing_run',
-        ]
+        return [f.attname for f in self._meta.fields]
 
 
 class UserProfile(AbstractUser):

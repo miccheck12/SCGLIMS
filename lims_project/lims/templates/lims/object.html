@@ -1,4 +1,10 @@
 {% extends "lims/base.html" %}
+{% block bootstrap3_content %}
+    {% with active=2 %}
+    {{block.super}}
+    {% endwith %}
+{% endblock bootstrap3_content %}
+
 {% block content %}
 {% with objectname|slugify as slug %}
 <a href="{% url "lims.views.index" %}">LIMS</a> > <a href="{% url "lims.views.browse" %}">Browse</a> > <a href="{% url "lims.views.browse."|add:slug %}">{{ verbose_name_plural }}</a> > <a href="{% url "lims.views.browse."|add:slug object.id %}">{{ object }}</a>
@@ -6,9 +12,12 @@
 {% if object.sample %}
 <a href="{% url "lims.views.sample_tree_json" object.sample.id %}">View Sample Tree</a>
 {% endif %}
-<a href="{% url "admin:lims_"|add:slug|add:"_change" object.id %}">Edit in Admin</a><br /><br />
+<b>Options</b><br />
+<ul>
+    <li><a href="{% url "admin:lims_"|add:slug|add:"_change" object.id %}">Edit in Admin</a></li>
 {% endwith %}
 {% if objectname == "Sample" %}
-<a href="{% url "lims.views.sample_tree_json" object.id %}">View Sample Tree</a>
+    <li><a href="{% url "lims.views.sample_tree_json" object.id %}">View Sample Tree</a></li>
+</ul>
 {% endif %}
 {% endblock %}
