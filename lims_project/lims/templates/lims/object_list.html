@@ -6,14 +6,17 @@
 {% endblock bootstrap3_content %}
 
 {% block content %}
+{% with objectname|slugify as slug %}
+<a href="{% url "lims.views.index" %}">LIMS</a> > <a href="{% url "lims.views.browse" %}">Browse</a> > <a href="{% url "lims.views.browse."|add:slug %}">{{ verbose_name_plural }}</a>
 <div class="center">
 <h1>Browse the SiCell LIMS</h1>
 </div>
 <p>
 
 {% for o in objects %}
-<a href="">{{ o.uid }}</a><br />
+<a href="{% url "lims.views.browse."|add:slug o.id %}">{{ o }}</a><br />
 {% endfor %}
+{% endwith %}
 
 </p>
 {% endblock %}

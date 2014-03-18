@@ -26,6 +26,17 @@ class Apparatus(models.Model):
     class Meta:
         verbose_name_plural = "Apparatus"
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'name',
+            'temperature',
+            'location',
+            'date',
+        ]
+
 
 class ApparatusSubdivision(models.Model):
     """An apparatus can have multiple shelves or racks. If the machine has only
@@ -754,6 +765,22 @@ class SequencingRun(models.Model):
 
     def __unicode__(self):
         return "%s" % (self.uid)
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'uid',
+            'sequencing_center',
+            'machine',
+            'report',
+            'folder',
+            'notes',
+            'dna_library',
+            'protocol',
+            'date',
+        ]
 
 
 class ReadFile(models.Model):

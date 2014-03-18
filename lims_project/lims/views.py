@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
+from django.utils.text import capfirst
 
 from lims.models import Collaborator, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, SAG
 
@@ -32,15 +33,24 @@ def get_attr_list(obj):
 def default_object_table(obj):
     def func(request, obj_id):
         o = obj.objects.get(pk=obj_id)
+        verbose_name = unicode(capfirst(obj._meta.verbose_name))
+        verbose_name_plural = unicode(capfirst(obj._meta.verbose_name_plural))
         return render(request, 'lims/object.html',
-                      {'objectname': obj.__name__, 'object': o})
+                      {'objectname': obj.__name__, 'verbose_name':
+                       verbose_name, 'verbose_name_plural':
+                       verbose_name_plural, 'object': o})
     return func
 
 
 def default_object_list(obj):
     def func(request):
+        verbose_name = unicode(capfirst(obj._meta.verbose_name))
+        verbose_name_plural = unicode(capfirst(obj._meta.verbose_name_plural))
         return render(request, 'lims/object_list.html',
-                      {'objectname': obj.__name__, 'objects': list(obj.objects.all())})
+                      {'objectname': obj.__name__, 'verbose_name':
+                       verbose_name, 'verbose_name_plural':
+                       verbose_name_plural, 'objects':
+                       list(obj.objects.all())})
     return func
 
 
@@ -60,7 +70,7 @@ def sample_tree(request, sample_id):
 
 
 def generate_related_objects_tree(obj):
-    rv = {"url": reverse('lims.views.' + slugify(type(obj).__name__),
+    rv = {"url": reverse('lims.views.browse.' + slugify(type(obj).__name__),
                                                  args=[obj.id])}
 
     for ro in obj._meta.get_all_related_objects():
