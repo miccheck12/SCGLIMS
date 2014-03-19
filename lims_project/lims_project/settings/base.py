@@ -94,6 +94,9 @@ STATIC_URL = '/static/'
 # Absolute filesystem path to the Django project directory:
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
+# Add template dir to overload admin
+TEMPLATE_DIRS = ('lims_project/templates',)
+
 # Add request in templates
 # http://stackoverflow.com/questions/15436407
 TEMPLATE_CONTEXT_PROCESSORS = (

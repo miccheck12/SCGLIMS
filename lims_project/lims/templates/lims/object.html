@@ -9,15 +9,12 @@
 {% with objectname|slugify as slug %}
 <a href="{% url "lims.views.index" %}">LIMS</a> > <a href="{% url "lims.views.browse" %}">Browse</a> > <a href="{% url "lims.views.browse."|add:slug %}">{{ verbose_name_plural }}</a> > <a href="{% url "lims.views.browse."|add:slug object.id %}">{{ object }}</a>
 {% include "lims/objecttable.html" with objectname=verbose_name object=object only %}
-{% if object.sample %}
-<a href="{% url "lims.views.sample_tree_json" object.sample.id %}">View Sample Tree</a>
-{% endif %}
 <b>Options</b><br />
 <ul>
     <li><a href="{% url "admin:lims_"|add:slug|add:"_change" object.id %}">Edit in Admin</a></li>
 {% endwith %}
-{% if objectname == "Sample" %}
+{% if object.sample or objectname == "Sample" %}
     <li><a href="{% url "lims.views.sample_tree_json" object.id %}">View Sample Tree</a></li>
-</ul>
 {% endif %}
+</ul>
 {% endblock %}

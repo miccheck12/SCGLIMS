@@ -10,11 +10,11 @@ from import_export.admin import ImportExportModelAdmin
 from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
-    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container
+    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision]
+standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, ContainerType]
 
 for model in standard_models:
     admin.site.register(model)
@@ -99,6 +99,7 @@ class ContainerAdmin(admin.ModelAdmin):
         'is_empty',
     ]
     raw_id_fields = ("parent",)
+    list_per_page = 10
 
     def get_nr_children(self, obj):
         return "%s" % str(obj.child.count())
