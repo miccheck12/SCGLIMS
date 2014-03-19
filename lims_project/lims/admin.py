@@ -73,6 +73,7 @@ class ContainerApparatusFilter(admin.SimpleListFilter):
         provided in the query string and retrievable via
         `self.value()`.
         """
+        #TODO: Ignores non-root containers
         all_aps = [aps.id for aps in ApparatusSubdivision.objects.all()]
         if self.value():
             aps = [aps.id for aps in ApparatusSubdivision.objects.filter(apparatus=self.value())]

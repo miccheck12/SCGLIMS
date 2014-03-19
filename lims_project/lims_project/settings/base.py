@@ -95,7 +95,7 @@ STATIC_URL = '/static/'
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 # Add template dir to overload admin
-TEMPLATE_DIRS = ('lims_project/templates',)
+TEMPLATE_DIRS = (DJANGO_ROOT + '/templates',)
 
 # Add request in templates
 # http://stackoverflow.com/questions/15436407

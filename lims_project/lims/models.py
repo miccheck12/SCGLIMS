@@ -4,7 +4,7 @@ import sys
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
 def property_verbose(description):
@@ -142,6 +142,19 @@ class Container(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.type, self.barcode)
 
+    def clean(self):
+        if bool(self.parent) and bool(self.apparatus_subdivision):
+            error_msg = """A container with a parent can't be located at a
+            different location than it's parent i.e. specify either parent or
+            apparatus_subdivision."""
+            raise ValidationError({"parent": [error_msg, ],
+                                   "apparatus_subdivision": [error_msg, ]})
+        elif not bool(self.parent) and not bool(self.apparatus_subdivision):
+            error_msg = """A container without a parent should be stored at an
+            apparatus_subdivision."""
+            raise ValidationError({"parent": [error_msg, ],
+                                   "apparatus_subdivision": [error_msg, ]})
+
     @property
     def preferred_ordering(self):
         """Returns an ordered list of attribute names"""
@@ -189,15 +202,7 @@ class Container(models.Model):
         """Checks if the container is empty. If the container is not a leaf
         container, also check child containers."""
         objects = self.get_objects_in_container()
-        if not self.is_root():
-            if len(objects) == 0:
-                return True
-            elif len(objects) == 1:
-                return False
-            elif len(objects) > 1:
-                raise(Exception("Multiple objects in leaf container! %s" % str(objects)))
-        else:
-            return len(objects) == 0
+        return len(objects) == 0
 
 
 class StorablePhysicalObject(models.Model):
@@ -206,12 +211,21 @@ class StorablePhysicalObject(models.Model):
     def save(self):
         if not self.container.is_leaf():
             raise(Exception("Container %s is not a leaf container!" % self))
-        #TODO: The next line actually raises the exception in is_empty now
-        # because the object is created before it is saved
         if not self.container.is_empty():
             raise(Exception("Container %s is not empty! %s" %
                             (self, self.container.get_objects_in_container())))
         super(StorablePhysicalObject, self).save()
+
+    def clean(self):
+        if not self.container.is_leaf():
+            error_msg = "Container {0} is not a leaf container!".format(self.container)
+            raise(ValidationError({"container": [error_msg, ]}))
+        if not self.container.is_empty():
+            error_msg = """Container {0} is not empty. It contains
+                {1}.""".format(self.container,
+                               self.container.get_objects_in_container()[1])
+            raise(ValidationError({"container": [error_msg,
+                                                 ]}))
 
     class Meta:
         abstract = True
@@ -437,14 +451,17 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
         ExtractedCell for example. Otherwise you would have to change both this
         object and the Extracted Cell."""
         if bool(self.sample) != bool(self.extracted_cell):
-            #if self.sample:
-            #    sample = self.sample
-            #else:
-            #    sample = self.extracted_cell.sample
             super(ExtractedDNA, self).save()
         else:
             raise(Exception("You have to specify an Extracted cell or"
                             " a Sample, but not both."))
+
+    def clean(self):
+        if bool(self.sample) == bool(self.extracted_cell):
+            error_msg = """You have to specify either an Extracted cell or a
+            Sample, but not both."""
+            raise(ValidationError({"sample": [error_msg, ], "extracted_cell":
+                                   [error_msg, ]}))
 
     class Meta:
         verbose_name = "Extracted DNA"
@@ -701,6 +718,13 @@ class SAG(models.Model):
             raise(Exception("You have to specify either a SAGPlate or a "
                             "SAGPlateDilution and not both"))
 
+    def clean(self):
+        if bool(self.sag_plate_dilution) == bool(self.sag_plate):
+            error_msg = """You have to specify either an Extracted cell or a
+            Sample, but not both."""
+            raise(ValidationError({"sag_plate_dilution": [error_msg, ],
+                                   "extracted_cell": [error_msg, ]}))
+
     class Meta:
         verbose_name = "SAG"
         verbose_name_plural = "SAGs"
@@ -838,6 +862,19 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
             raise(Exception("You have to specify a DNA source from either "
                             "Amplicon, Metagenome, SAG or Pure culture and not "
                             "more than one"))
+
+    def clean(self):
+        if sum((bool(self.amplicon),
+                bool(self.metagenome),
+                bool(self.sag),
+                bool(self.pure_culture))) != 1:
+            error_msg = """You have to specify a DNA source from either
+            Amplicon, Metagenome, SAG or Pure culture and not more than one."""
+            raise(ValidationError({"amplicon": [error_msg, ],
+                                   "metagenome": [error_msg, ],
+                                   "sag": [error_msg, ],
+                                   "pure_culture": [error_msg, ],
+                                   }))
 
     class Meta:
         verbose_name = "DNA library"
