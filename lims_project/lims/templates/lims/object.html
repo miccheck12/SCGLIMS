@@ -14,7 +14,7 @@
     <li><a href="{% url "admin:lims_"|add:slug|add:"_change" object.id %}">Edit in Admin</a></li>
 {% endwith %}
 {% if object.sample or objectname == "Sample" %}
-    <li><a href="{% url "lims.views.sample_tree_json" object.id %}">View Sample Tree</a></li>
+    <li><a href="{% url "lims.views.sample_tree_json" object.sample.id %}">View Sample Tree</a></li>
 {% endif %}
 </ul>
 {% endblock %}
