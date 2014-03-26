@@ -134,6 +134,12 @@ class Container(models.Model):
         provided. Only the root Container with parent null should be linked to
         an apparatus_subdivision."""
         if bool(self.parent) != bool(self.apparatus_subdivision):
+            if not self.container.is_leaf():
+                raise(Exception("Container %s is not a leaf container!" % self))
+            nr_objects = self.container.nr_objects_in_container
+            if nr_objects > 1:
+                raise(Exception("Container %s is not empty! %s" %
+                            (self, self.container.get_objects_in_container())))
             super(Container, self).save()
         else:
             raise(Exception("The root container should be linked to an "
@@ -194,10 +200,12 @@ class Container(models.Model):
                     continue
         return objects
 
+    @property
     def nr_objects_in_container(self):
         """Count number of objects in the container"""
         return len(self.get_objects_in_container())
 
+    @property
     def is_empty(self):
         """Checks if the container is empty. If the container is not a leaf
         container, also check child containers."""
@@ -206,24 +214,17 @@ class Container(models.Model):
 
 
 class StorablePhysicalObject(models.Model):
-    container = models.OneToOneField(Container)
-
-    def save(self):
-        if not self.container.is_leaf():
-            raise(Exception("Container %s is not a leaf container!" % self))
-        if not self.container.is_empty():
-            raise(Exception("Container %s is not empty! %s" %
-                            (self, self.container.get_objects_in_container())))
-        super(StorablePhysicalObject, self).save()
+    container = models.OneToOneField(Container, blank=True, null=True)
 
     def clean(self):
         if not self.container.is_leaf():
             error_msg = "Container {0} is not a leaf container!".format(self.container)
             raise(ValidationError({"container": [error_msg, ]}))
-        if not self.container.is_empty():
+        if self.container.nr_objects_in_container > 1:
             error_msg = """Container {0} is not empty. It contains
-                {1}.""".format(self.container,
-                               self.container.get_objects_in_container()[1])
+                {1} objects i.e. {2}.""".format(self.container,
+                                                self.container.nr_objects_in_container,
+                                                self.container.get_objects_in_container())
             raise(ValidationError({"container": [error_msg,
                                                  ]}))
 
@@ -364,7 +365,6 @@ class Sample(StorablePhysicalObject, models.Model):
             'salinity',
             'depth',
             'shipping_method',
-            'container',
             'biosafety_level',
             'status',
             'notes',

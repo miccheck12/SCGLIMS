@@ -1,3 +1,6 @@
+from __future__ import print_function
+import sys
+
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry, DELETION
 from django.core.urlresolvers import reverse
@@ -14,7 +17,7 @@ from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, S
 
 from lims.import_export_resources import SampleResource
 
-standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, ContainerType]
+standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, ContainerType, SampleType, SampleLocation]
 
 for model in standard_models:
     admin.site.register(model)
@@ -58,33 +61,40 @@ class ContainerApparatusFilter(admin.SimpleListFilter):
     parameter_name = 'apparatus'
 
     def lookups(self, request, model_admin):
-        """
-        Returns a list of tuples. The first element in each
-        tuple is the coded value for the option that will
-        appear in the URL query. The second element is the
-        human-readable name for the option that will appear
-        in the right sidebar.
-        """
+        """The options are the different Apparatus objects"""
         return [(ap.id, _(str(ap))) for ap in Apparatus.objects.all()]
 
     def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
-        #TODO: Ignores non-root containers
-        all_aps = [aps.id for aps in ApparatusSubdivision.objects.all()]
+        """Only return containers where the apparatus root is set to given value"""
         if self.value():
-            aps = [aps.id for aps in ApparatusSubdivision.objects.filter(apparatus=self.value())]
-            cons = Container.objects.filter(apparatus_subdivision__in=aps)
-            return queryset & cons
+            con_ids = [c.id for c in queryset if c.root_apparatus.id == int(self.value())]
+            return queryset.filter(id__in=con_ids)
+
+
+class ContainerIsEmptyFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('Is Empty')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'is_empty'
+
+    def lookups(self, request, model_admin):
+        """only True and False for is_empty"""
+        return [(True, _(str(True))), (False, _(str(False)))]
+
+    def queryset(self, request, queryset):
+        """If a value is specified only return is_empty with the same value"""
+        if self.value():
+            empty_ids = [c.id for c in queryset if c.is_empty == (self.value() == "True")]
+            return queryset.filter(id__in=empty_ids)
 
 
 class ContainerAdmin(admin.ModelAdmin):
     list_filter = [
         'type',
         ContainerApparatusFilter,
+        ContainerIsEmptyFilter,
     ]
     list_display = [
         'id',
@@ -99,6 +109,7 @@ class ContainerAdmin(admin.ModelAdmin):
         'nr_objects_in_container',
         'is_empty',
     ]
+    #search_fields = ("parent",)
     raw_id_fields = ("parent",)
     list_per_page = 10
 
