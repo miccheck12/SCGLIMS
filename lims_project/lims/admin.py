@@ -15,25 +15,24 @@ from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, S
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
     Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType
 
-from lims.import_export_resources import SampleResource
+from lims.import_export_resources import SampleResource, ContainerResource
 
-standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, ContainerType, SampleType, SampleLocation]
 
+def generate_all_fields_admin(classname):
+    """Generate an Admin class which adds all fields to list_display except for
+    notes."""
+    #TODO: extend this for IndexByGroup models with read_only_fields/uid
+    #TODO: show ForeignKeyFields that are not reversely related
+    return type(classname.__name__ + "Admin", (admin.ModelAdmin,),
+                {'list_display': ([f.name for (f, model) in
+                                   classname._meta.get_fields_with_model() if
+                                   model is None and f.name not in
+                                   ["notes"]])})
+
+# Generate standard admin classes for the standard_models
+standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType]
 for model in standard_models:
-    admin.site.register(model)
-
-
-def create_modeladmin(modeladmin, model, name=None):
-    class Meta:
-        proxy = True
-        app_label = model._meta.app_label
-
-    attrs = {'__module__': '', 'Meta': Meta}
-
-    newmodel = type(name, (model,), attrs)
-
-    admin.site.register(newmodel, modeladmin)
-    return modeladmin
+    admin.site.register(model, generate_all_fields_admin(model))
 
 
 class AmpliconAdmin(admin.ModelAdmin):
@@ -90,8 +89,10 @@ class ContainerIsEmptyFilter(admin.SimpleListFilter):
             return queryset.filter(id__in=empty_ids)
 
 
-class ContainerAdmin(admin.ModelAdmin):
+class ContainerAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    resource_class = ContainerResource
     list_filter = [
+        'date',
         'type',
         ContainerApparatusFilter,
         ContainerIsEmptyFilter,
@@ -108,10 +109,13 @@ class ContainerAdmin(admin.ModelAdmin):
         'get_nr_children',
         'nr_objects_in_container',
         'is_empty',
+        'date',
     ]
     #search_fields = ("parent",)
     raw_id_fields = ("parent",)
     list_per_page = 10
+    # import_export change template to include csv
+    import_template_name = 'import_export/lims_import.html'
 
     def get_nr_children(self, obj):
         return "%s" % str(obj.child.count())
@@ -303,6 +307,7 @@ class DNAFromPureCultureAdmin(admin.ModelAdmin):
         'extracted_dna',
         'concentration'
     ]
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(DNAFromPureCulture, DNAFromPureCultureAdmin)
 
 
@@ -393,27 +398,4 @@ class LogEntryAdmin(admin.ModelAdmin):
     def queryset(self, request):
         return super(LogEntryAdmin, self).queryset(request) \
             .prefetch_related('content_type')
-
 admin.site.register(LogEntry, LogEntryAdmin)
-
-
-# DEPRECATED -->
-class DNALibraryAdmin(admin.ModelAdmin):
-    exclude = ('content_type',)
-
-    def formfield_for_choice_field(self, db_field, request, **kwargs):
-            if db_field.name == "object_id":
-                objects = list(Amplicon.objects.all()) + list(SAG.objects.all()) + \
-                    list(PureCulture.objects.all())
-                kwargs['choices'] = tuple([(o.id, o.id) for o in objects])
-                kwargs['empty_label'] = "---------"
-                kwargs['blank'] = False
-            return super(DNALibraryAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
-
-
-def generate_all_fields_admin(classname):
-        return type(classname.__name__ + "Admin", (admin.ModelAdmin,),
-                    {'list_display': ([name for name in classname._meta.get_all_field_names() if name
-                    not in ['amplicon', 'extractedcell', 'extracteddna',
-                            'metagenome', 'id', 'uid', 'sample']])})
-# END DEPRECATED <--

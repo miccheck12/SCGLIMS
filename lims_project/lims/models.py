@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import re
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -107,7 +108,7 @@ class Container(models.Model):
 
     @property
     def barcode(self):
-        return "CO:%06d" % (self.pk)
+        return "CO:%06d" % (self.pk if self.pk else 0)
 
     @property_verbose("Root")
     def root(self):
@@ -134,12 +135,6 @@ class Container(models.Model):
         provided. Only the root Container with parent null should be linked to
         an apparatus_subdivision."""
         if bool(self.parent) != bool(self.apparatus_subdivision):
-            if not self.container.is_leaf():
-                raise(Exception("Container %s is not a leaf container!" % self))
-            nr_objects = self.container.nr_objects_in_container
-            if nr_objects > 1:
-                raise(Exception("Container %s is not empty! %s" %
-                            (self, self.container.get_objects_in_container())))
             super(Container, self).save()
         else:
             raise(Exception("The root container should be linked to an "
@@ -160,6 +155,7 @@ class Container(models.Model):
             apparatus_subdivision."""
             raise ValidationError({"parent": [error_msg, ],
                                    "apparatus_subdivision": [error_msg, ]})
+        super(Container, self).clean()
 
     @property
     def preferred_ordering(self):
@@ -212,21 +208,25 @@ class Container(models.Model):
         objects = self.get_objects_in_container()
         return len(objects) == 0
 
+    class Meta:
+        unique_together = (("row", "column", "parent"),)
+
 
 class StorablePhysicalObject(models.Model):
     container = models.OneToOneField(Container, blank=True, null=True)
 
     def clean(self):
-        if not self.container.is_leaf():
-            error_msg = "Container {0} is not a leaf container!".format(self.container)
-            raise(ValidationError({"container": [error_msg, ]}))
-        if self.container.nr_objects_in_container > 1:
-            error_msg = """Container {0} is not empty. It contains
-                {1} objects i.e. {2}.""".format(self.container,
-                                                self.container.nr_objects_in_container,
-                                                self.container.get_objects_in_container())
-            raise(ValidationError({"container": [error_msg,
-                                                 ]}))
+        if self.container:
+            if not self.container.is_leaf():
+                error_msg = "Container {0} is not a leaf container!".format(self.container)
+                raise(ValidationError({"container": [error_msg, ]}))
+            if self.container.nr_objects_in_container > 1:
+                error_msg = """Container {0} is not empty. It contains
+                    {1} objects i.e. {2}.""".format(self.container,
+                                                    self.container.nr_objects_in_container,
+                                                    self.container.get_objects_in_container())
+                raise(ValidationError({"container": [error_msg, ]}))
+        super(StorablePhysicalObject, self).clean()
 
     class Meta:
         abstract = True
@@ -334,13 +334,13 @@ class Sample(StorablePhysicalObject, models.Model):
     gps = models.CharField("GPS", max_length=30, blank=True)
     shipping_method = models.CharField(max_length=30, blank=True)
     date_received = models.DateTimeField(default=timezone.now, blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
     biosafety_level = models.IntegerField(
         choices=((1, 1), (2, 2), (3, 3), (4, 4)), blank=True, null=True)
     status = models.CharField(max_length=8,
         choices=(('new', 'new'), ('used', 'used'), ('finished', 'finished')), blank=True, null=True)
     notes = models.TextField(blank=True)
     extra_columns_json = models.TextField(blank=True)
-    date = models.DateTimeField(default=timezone.now, blank=True)
 
     @property
     def barcode(self):
@@ -348,6 +348,12 @@ class Sample(StorablePhysicalObject, models.Model):
 
     def __unicode__(self):
         return "%s" % (self.uid)
+
+    def clean(self):
+        if re.match("^[A-Z0-9]{5}$", str(self.uid)) is None:
+            error_msg = """UID should consist of five alphanumeric characters. Only capitals allowed."""
+            raise(ValidationError({"uid": [error_msg, ]}))
+        super(Sample, self).clean()
 
     @property
     def preferred_ordering(self):
@@ -462,6 +468,7 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
             Sample, but not both."""
             raise(ValidationError({"sample": [error_msg, ], "extracted_cell":
                                    [error_msg, ]}))
+        super(ExtractedDNA, self).clean()
 
     class Meta:
         verbose_name = "Extracted DNA"
@@ -724,6 +731,7 @@ class SAG(models.Model):
             Sample, but not both."""
             raise(ValidationError({"sag_plate_dilution": [error_msg, ],
                                    "extracted_cell": [error_msg, ]}))
+        super(SAG, self).clean()
 
     class Meta:
         verbose_name = "SAG"
@@ -875,6 +883,7 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
                                    "sag": [error_msg, ],
                                    "pure_culture": [error_msg, ],
                                    }))
+        super(DNALibrary, self).clean()
 
     class Meta:
         verbose_name = "DNA library"

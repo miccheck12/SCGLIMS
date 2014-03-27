@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-from collections import OrderedDict
-
 import sys
 
 import json
@@ -12,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.utils.text import capfirst
 
-from lims.models import Collaborator, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, SAG
+from lims.models import Container, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, SAG
 
 
 def index(request):
@@ -100,21 +98,6 @@ def sample_tree_json(request, sample_id):
                   {'json': json.dumps(response_data)})
 
 
-def sample_detail(request, sample_id):
-    sample = Sample.objects.get(pk=sample_id)
-    extracted_cells = list(ExtractedCell.objects.filter(sample__id=sample_id))
-    return render(request, 'lims/sampletree.html',
-        {'sample': sample, 'collaborator': sample.collaborator,
-        'extractedcells': extracted_cells})
-
-
-def sagplate_detail(request, sagplate_id):
-    sagplate = SAGPlate.objects.get(pk=sagplate_id)
-    return render(request, 'lims/table.html',
-        {'tablename': 'SAGPlate', 'rows':
-        [(k, getattr(sagplate, k)) for k in sagplate.preferred_ordering()]})
-
-
 def barcode_index(request):
     return render(request, 'lims/barcode_index.html')
 
@@ -126,4 +109,7 @@ def barcode_search(request, barcode):
             return default_object_table(Sample)(request, s[0].id)
         else:
             print("ERR: More than one or zero samples with given barcode", file=sys.stderr)
+    elif barcode.startswith("CO:"):
+        c = Container.objects.get(pk=int(barcode[3:]))
+        return default_object_table(Container)(request, c.id)
     raise Http404

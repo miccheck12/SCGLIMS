@@ -5,7 +5,7 @@ import json
 from import_export import resources, fields
 from import_export.widgets import Widget
 
-from lims.models import Collaborator, Sample
+from lims.models import Sample, Container
 
 
 class LIMSForeignKeyWidget(Widget):
@@ -28,6 +28,11 @@ class LIMSForeignKeyWidget(Widget):
         if value is None:
             return ""
         return str(value) + " (HAHAHA id=%d)" % value.pk
+
+
+class ContainerResource(resources.ModelResource):
+    class Meta:
+        model = Container
 
 
 class SampleResource(resources.ModelResource):
