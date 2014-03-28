@@ -1,19 +1,53 @@
 {% extends "lims/base.html" %}
-
 {% block content %}
+<div id="sampletree">
+</div>
+{% endblock %}
+{% block custom_js %}
+<script>
+    $(document).ready(function() {
+        var stree = $('#sampletree');
+        var jsondata = JSON.parse('{{ json|safe|escape }}');
 
-{# There's only one collaborator for each sample according to the database scheme (DS) #}
-{% if collaborator %}
-{% include "lims/objectpanel.html" with objectname="Collaborator" object=collaborator only %}
-{% endif %}
+        // Create HTML list from JSON data
+        $(listify(jsondata)).appendTo(stree);
 
-{% if sample %}
-{% include "lims/objectpanel.html" with objectname="Sample" object=sample only %}
-{% endif %}
+        function listify(obj) {
+            htmlstr = "";
 
-{# There could be multiple extracted cells for one sample #}
-{% if extractedcells %}
-{% include "lims/objectpanel.html" with objectname="Extracted Cells" objects=extractedcells only %}
-{% endif %}
+            for (k in obj) {
+                if (k == "url") {
+                    continue;
+                }
 
+                htmlstr += '<ul><li>' + k + '</li><ul>';
+
+                for (k2 in obj[k]) {
+                    //TODO: I don't get why we get obj[k] undefined here
+                    if (typeof obj[k] == "undefined") {
+                        continue;
+                    }
+                    for (k3 in obj[k][k2]) {
+                        //TODO: I don't get why we get obj[k] undefined here
+                        if (typeof obj[k] == "undefined") {
+                            continue;
+                        }
+                        if (k3 == "url") {
+                            htmlstr += '<li><a href="' + obj[k][k2]["url"] + '">' + k2 + '</a></li>';
+                        } else {
+                            htmlstr += listify(obj[k][k2])
+                        }
+                    }
+                }
+                htmlstr += '<ul></ul>';
+
+                if ("child" in obj) {
+                    listify(obj["child"]);
+                }
+
+                return htmlstr;
+            }
+        }
+    });
+</script>
 {% endblock %}

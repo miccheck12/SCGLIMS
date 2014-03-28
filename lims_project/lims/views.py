@@ -52,21 +52,6 @@ def default_object_list(obj):
     return func
 
 
-def sample_tree(request, sample_id):
-    sample = Sample.objects.get(pk=sample_id)
-    sample.extracted_cells = list(ExtractedCell.objects.filter(sample__id=sample_id))
-    for ec in sample.extracted_cells:
-        ec.sag_plates = list(SAGPlate.objects.filter(extracted_cell__id=ec.id))
-        for sp in ec.sag_plates:
-            sp.sags = list(SAG.objects.filter(sag_plate__id=sp.id))
-            sp.sag_plate_dilutions = list(SAGPlateDilution.objects.filter(sag_plate__id=sp.id))
-            for spd in sp.sag_plate_dilutions:
-                spd.sags = list(SAG.objects.filter(sag_plate_dilution__id=sp.id))
-
-    return render(request, 'lims/sampletree2.html',
-        {'sample': sample})
-
-
 def generate_related_objects_tree(obj):
     rv = {"url": reverse('lims.views.browse.' + slugify(type(obj).__name__),
                                                  args=[obj.id])}
@@ -81,20 +66,10 @@ def generate_related_objects_tree(obj):
 def sample_tree_json(request, sample_id):
     sample = Sample.objects.get(pk=sample_id)
 
-    response_data = {}
-    # serializers.serialize("json", [sample])
-
-    #response_data['Sample'] = OrderedDict()
-    ##for field in sample.preferred_ordering:
-    ##    response_data['Sample'][field] = str(getattr(sample, field))
-
-    #response_data['Sample']["name"] = str(sample)
-    #response_data['Sample']["url"] = reverse('lims.views.sample', args=[sample.id])
-
-    response_data['Sample'] = {}
+    response_data = {'Sample':{}}
     response_data['Sample'][str(sample)] = generate_related_objects_tree(sample)
 
-    return render(request, 'lims/sampletree3.html',
+    return render(request, 'lims/sampletree.html',
                   {'json': json.dumps(response_data)})
 
 
