@@ -1,5 +1,4 @@
 from __future__ import print_function
-import sys
 
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry, DELETION
@@ -48,6 +47,7 @@ class AmpliconAdmin(admin.ModelAdmin):
         'notes',
     ]
     readonly_fields = ('index_by_group', 'uid')
+    raw_id_fields = ("container",)
 admin.site.register(Amplicon, AmpliconAdmin)
 
 
@@ -129,14 +129,12 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         'collaborator',
         'sample_type',
         'sample_location',
-        'gps',
         'temperature',
         'ph',
         'salinity',
         'depth',
         'shipping_method',
         'container',
-        'biosafety_level',
         'status',
     ]
     list_display = [
@@ -197,6 +195,7 @@ class ExtractedCellAdmin(admin.ModelAdmin):
         'container',
         'notes'
     ]
+    raw_id_fields = ("container",)
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
 
@@ -215,6 +214,7 @@ class ExtractedDNAAdmin(admin.ModelAdmin):
         'buffer',
         'notes',
     ]
+    raw_id_fields = ("container",)
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
 
@@ -263,6 +263,7 @@ class DNALibraryAdmin(admin.ModelAdmin):
         'sample_name_on_platform',
         'container',
     ]
+    raw_id_fields = ("container",)
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(DNALibrary, DNALibraryAdmin)
 
@@ -275,6 +276,7 @@ class PrimerAdmin(admin.ModelAdmin):
         'container',
         'stock',
     ]
+    raw_id_fields = ("container",)
 admin.site.register(Primer, PrimerAdmin)
 
 

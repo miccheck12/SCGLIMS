@@ -709,8 +709,8 @@ class Amplicon(StorablePhysicalObject, IndexByGroup):
 
 
 class SAG(models.Model):
-    sag_plate = models.ForeignKey(SAGPlate, null=True)
-    sag_plate_dilution = models.ForeignKey(SAGPlateDilution, null=True)
+    sag_plate = models.ForeignKey(SAGPlate, blank=True, null=True)
+    sag_plate_dilution = models.ForeignKey(SAGPlateDilution, blank=True, null=True)
     well = models.CharField(max_length=3)
     concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
                                         max_length=100, max_digits=10,
