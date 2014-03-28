@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 def property_verbose(description):
@@ -331,7 +332,17 @@ class Sample(StorablePhysicalObject, models.Model):
     ph = models.DecimalField(" pH", max_digits=10, decimal_places=2, blank=True, null=True)
     salinity = models.DecimalField("Salinity unit(?))", max_digits=10, decimal_places=2, blank=True, null=True)
     depth = models.DecimalField("Depth (m)", max_digits=10, decimal_places=2, blank=True, null=True)
-    gps = models.CharField("GPS", max_length=30, blank=True)
+    # Latitude/Longitude decimals like decimal degress with plus and minus.
+    # Minus is south of the equator, positive implies north.
+    latitude = models.DecimalField(max_digits=13, decimal_places=8, blank=True,
+                                   null=True,
+                                   validators=[MinValueValidator(-90),
+                                               MaxValueValidator(90)])
+    # Minus is west of the prime meridian, positive implies east
+    longitude = models.DecimalField(max_digits=13, decimal_places=8, blank=True,
+                                   null=True,
+                                   validators=[MinValueValidator(-180),
+                                               MaxValueValidator(180)])
     shipping_method = models.CharField(max_length=30, blank=True)
     date_received = models.DateTimeField(default=timezone.now, blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
@@ -365,7 +376,8 @@ class Sample(StorablePhysicalObject, models.Model):
             'collaborator',
             'sample_type',
             'sample_location',
-            'gps',
+            'latitude',
+            'longitude',
             'temperature',
             'ph',
             'salinity',
@@ -819,8 +831,10 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
     i7 = models.CharField(max_length=100)
     i5 = models.CharField(max_length=100)
     sample_name_on_platform = models.CharField(max_length=100, unique=True)
+    concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
+                                        max_length=100, max_digits=10,
+                                        decimal_places=5)
 
-    #fastq_files
     protocol = models.ForeignKey(Protocol)
     date = models.DateTimeField(default=timezone.now, blank=True)
 
