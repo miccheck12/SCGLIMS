@@ -8,7 +8,7 @@ for the `Ettema Lab`_ by `BILS`_. A presentation of the system can be found at
 
 The database implements the workflow of the Ettema Lab:
 
-.. image:: https://raw.github.com/BILS/SCGLIMS/blob/master/doc/images/flowchartlab.png
+.. image:: http://raw.githubusercontent.com/BILS/SCGLIMS/master/docs/images/flowchartlab.png
 
 If your lab has a similar workflow you might be able to use the SCGLIMS as is.
 Otherwise an amout of tweaking might be required in which case I would
@@ -27,9 +27,8 @@ Requirements
 
 * Python 2.7+
 * Django 1.6.1
-
-Local: https://github.com/BILS/SCGLIMS/blob/master/lims_project/lims_project/settings/local.py
-Development: https://github.com/BILS/SCGLIMS/blob/master/lims_project/lims_project/settings/development.py
+* Local: https://github.com/BILS/SCGLIMS/blob/master/lims_project/requirements/local.txt
+* Development: https://github.com/BILS/SCGLIMS/blob/master/lims_project/requirements/development.txt
 
 Installation
 -------------
@@ -37,34 +36,39 @@ Installation
 Clone the repository to your computer:
 
 ::
+    
     git clone https://github.com/BILS/SCGLIMS
 
 Local installation:
 
 ::
+    
     pip install -r lims_project/requirements/local.txt
 
 
 Running SCGLIMS
 ----------------
 
-Running SCGLIMS locally
+Locally
+********
 
-    Without example data:
+Without example data:
 
-        ::
-            cd lims_project
-            python manage.py syncdb --settings=lims_project.settings.local && \
-            python manage.py run test1 --settings=lims_project.settings.local \
-            python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
+::
+        
+    cd lims_project
+    python manage.py syncdb --settings=lims_project.settings.local && \
+    python manage.py run test1 --settings=lims_project.settings.local \
+    python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
 
-    With example data:
+With example data:
 
-        ::
-            cd lims_project
-            python manage.py syncdb --settings=lims_project.settings.local && \
-            python manage.py run test1 --settings=lims_project.settings.local \
-            python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
+::
+    
+    cd lims_project
+    python manage.py syncdb --settings=lims_project.settings.local && \
+    python manage.py run test1 --settings=lims_project.settings.local \
+    python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
 
 
 Contribute
