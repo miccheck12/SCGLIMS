@@ -2,7 +2,8 @@
 SCGLIMS
 ====================
 
-.. image:: https://travis-ci.org/BILS/SCGLIMS.svg?branch=master   :target: https://travis-ci.org/BILS/SCGLIMS
+.. image:: https://travis-ci.org/BILS/SCGLIMS.svg?branch=master
+    :target: https://travis-ci.org/BILS/SCGLIMS
 
 SCGLIMS is a Single Cell Genomics Lab Information Management System developed
 for the `Ettema Lab`_ by `BILS`_. A presentation of the system can be found at
