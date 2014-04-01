@@ -5,7 +5,8 @@ install:
   - pip install -r lims_project/requirements/test.txt --use-mirrors
   - pip install coveralls
 script:
-  - cd lims_project && python manage.py test --settings=lims_project.settings.test
-  - coverage run --source='.' --include="lims/*" --omit="lims/migrations/*,*__init__*," manage.py test --settings=lims_project.settings.test
+  - cd lims_project
+  - python manage.py test --settings=lims_project.settings.test
+  - coverage run --include="lims/*" --omit="lims/migrations/*,*__init__*,lims/tests/*" manage.py test --settings=lims_project.settings.test
 after_success:
   coveralls

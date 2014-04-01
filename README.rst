@@ -3,7 +3,11 @@ SCGLIMS
 ====================
 
 .. image:: https://travis-ci.org/BILS/SCGLIMS.svg?branch=master
-    :target: https://travis-ci.org/BILS/SCGLIMS
+  :target: https://travis-ci.org/BILS/SCGLIMS
+
+.. image:: https://coveralls.io/repos/BILS/SCGLIMS/badge.png?branch=master
+  :target: https://coveralls.io/r/BILS/SCGLIMS?branch=master
+
 
 SCGLIMS is a Single Cell Genomics Lab Information Management System developed
 for the `Ettema Lab`_ by `BILS`_. A presentation of the system can be found at
@@ -69,7 +73,7 @@ With example data:
     
     cd lims_project
     python manage.py syncdb --settings=lims_project.settings.local && \
-    python manage.py run test1 --settings=lims_project.settings.local \
+    python manage.py run test1 --settings=lims_project.settings.local && \
     python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
 
 
