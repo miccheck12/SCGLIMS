@@ -1,0 +1,7 @@
+language: python
+python:
+  - "2.7"
+install:
+  - pip install -r lims_project/requirements/test.txt --use-mirrors
+script:
+  - cd lims_project && python manage.py test --settings=lims_project.settings.test
