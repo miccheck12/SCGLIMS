@@ -58,7 +58,6 @@ Without example data:
         
     cd lims_project
     python manage.py syncdb --settings=lims_project.settings.local && \
-    python manage.py run test1 --settings=lims_project.settings.local \
     python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
 
 With example data:
