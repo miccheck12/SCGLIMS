@@ -23,7 +23,7 @@ recommend forking the repository and only using certain elements.
 
 .. * Documentation: Not yet available
 * Demo: `<http://bit.ly/scglims-heroku>`_ (for admin user/pass inodb)
-* Presentation: `<http://bitly.com/limstalk>`_
+* Presentation: `<http://bit.ly/limstalk>`_
 * GitHub: `<https://github.com/BILS/SCGLIMS/>`_
 * Free software: GPLv3 License
 .. * PyPI: Not yet available
