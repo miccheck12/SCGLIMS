@@ -69,4 +69,4 @@ In order to be merged into django-import-export, contributions must have the fol
 * Add yourself to the AUTHORS file.
 
 If your contribution lacks any of these things, they will have to be added
-by a core contributor before being merged into SCGLIMS proper.
+by a core contributor before being merged into SCGLIMS properly.
