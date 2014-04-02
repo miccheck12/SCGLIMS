@@ -11,4 +11,11 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lims_project.settings.development")
 
 from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+from django.conf import settings
+
+
+if settings.HEROKU:
+    from dj_static import Cling
+    application = Cling(get_wsgi_application())
+else:
+    application = get_wsgi_application()
