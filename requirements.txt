@@ -1,0 +1,2 @@
+# Heroku needs a requirements.txt in the root to detect it is a python app
+-r lims_project/requirements/heroku.txt
