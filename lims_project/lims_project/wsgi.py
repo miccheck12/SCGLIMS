@@ -14,7 +14,7 @@ from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 
 
-if settings.HEROKU:
+if hasattr(settings, "HEROKU") and settings.HEROKU:
     from dj_static import Cling
     application = Cling(get_wsgi_application())
 else:
