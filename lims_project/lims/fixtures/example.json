@@ -111,8 +111,8 @@
     "pk": 1, 
     "model": "lims.sampletype", 
     "fields": {
-        "name": "ocean water", 
-        "description": "water from the ocean"
+        "name": "lake water", 
+        "description": "water from a lake"
     }
 },
 {
