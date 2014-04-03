@@ -7,6 +7,9 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+from django.template.defaultfilters import slugify
 
 
 def property_verbose(description):
@@ -211,6 +214,19 @@ class Container(models.Model):
 
     class Meta:
         unique_together = (("row", "column", "parent"),)
+
+
+class StorablePhysicalObjectNew(models.Model):
+
+    def clean(self):
+        if self.container:
+            if not self.container.is_leaf():
+                error_msg = "Container {0} is not a leaf container!".format(self.container)
+                raise(ValidationError({"container": [error_msg, ]}))
+        super(StorablePhysicalObject, self).clean()
+
+    class Meta:
+        abstract = True
 
 
 class StorablePhysicalObject(models.Model):
@@ -965,3 +981,139 @@ class UserProfile(AbstractUser):
 
     #USERNAME_FIELD = 'fullname'
     #REQUIRED_FIELDS = ['']
+
+class ContainerNew(models.Model):
+    """A container can hold samples or other physical objects. They have a
+    type, explained in ContainerType. They have a parent and child field used
+    to subdivide a Container in multiple Containers, e.g. a 384 well plate
+    Container into 384 well Containers. The root parent Container is always
+    linked to a single ApparatusSubDivision so never to an Apparatus itself.
+    The children Containers should leave the apparatus_subdivision field empty
+    to avoid redundancy and inconsistencies between the root parent Container
+    and its children."""
+    type = models.ForeignKey(ContainerType)
+    row = models.IntegerField(blank=True, null=True)
+    column = models.IntegerField(blank=True, null=True)
+    parent = models.ForeignKey('self', blank=True, null=True,
+                               help_text="Parent container",
+                               related_name="child")
+    apparatus_subdivision = models.ForeignKey(ApparatusSubdivision, blank=True,
+                                              null=True)
+    notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
+
+    # Generic relation
+    qlimit = models.Q()
+    for m in models.get_models(app_mod='lims.models'):
+        if issubclass(m, StorablePhysicalObjectNew):
+            qlimit = qlimit | models.Q(app_label='lims',
+                                       model=slugify(m.__name__))
+    content_type = models.ForeignKey(ContentType, limit_choices_to=qlimit)
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    @property
+    def barcode(self):
+        return "CO:%06d" % (self.pk if self.pk else 0)
+
+    @property_verbose("Root")
+    def root(self):
+        # Follow Container to root
+        root = self
+        while root.parent is not None:
+            root = root.parent
+        return root
+
+    @property_verbose("Apparatus")
+    def root_apparatus(self):
+        return self.root_apparatus_subdivision.apparatus
+
+    @property_verbose("Apparatus subdivision")
+    def root_apparatus_subdivision(self):
+        try:
+            return self.root.apparatus_subdivision
+        except:
+            raise(Exception("Database inconsistency! If parent is null, "
+                "apparatus_subdivision should be set"))
+
+    def save(self):
+        """Saves and checks whether either parent or apparatus_subdivision is
+        provided. Only the root Container with parent null should be linked to
+        an apparatus_subdivision."""
+        if bool(self.parent) != bool(self.apparatus_subdivision):
+            super(ContainerNew, self).save()
+        else:
+            raise(Exception("The root container should be linked to an "
+            "apparatus_subdivision. Child containers not."))
+
+    def __unicode__(self):
+        return "%s %s" % (self.type, self.barcode)
+
+    def clean(self):
+        if bool(self.parent) and bool(self.apparatus_subdivision):
+            error_msg = """A container with a parent can't be located at a
+            different location than it's parent i.e. specify either parent or
+            apparatus_subdivision."""
+            raise ValidationError({"parent": [error_msg, ],
+                                   "apparatus_subdivision": [error_msg, ]})
+        elif not bool(self.parent) and not bool(self.apparatus_subdivision):
+            error_msg = """A container without a parent should be stored at an
+            apparatus_subdivision."""
+            raise ValidationError({"parent": [error_msg, ],
+                                   "apparatus_subdivision": [error_msg, ]})
+        super(ContainerNew, self).clean()
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [
+            'id',
+            'type',
+            'row',
+            'column',
+            'parent',
+            'apparatus_subdivision',
+            'notes',
+            'date',
+        ]
+
+    def is_root(self):
+        """Check if container is a root container"""
+        return self.parent is None
+
+    def is_leaf(self):
+        """Check if container is a leaf container"""
+        return len(self.child.all()) == 0
+
+    def get_objects_in_container(self):
+        """Get all objects in the container. If this is not a leaf container,
+        also get child objects."""
+        objects = []
+        for ro in self._meta.get_all_related_objects():
+            if ro.get_accessor_name() in ['child']:
+                children = getattr(self, ro.get_accessor_name()).all()
+                for ch in children:
+                    objects.extend(ch.get_objects_in_container())
+            else:
+                try:
+                    obj = getattr(self, ro.get_accessor_name())
+                    objects.append(obj)
+                except ObjectDoesNotExist:
+                    continue
+        return objects
+
+    @property
+    def nr_objects_in_container(self):
+        """Count number of objects in the container"""
+        return len(self.get_objects_in_container())
+
+    @property
+    def is_empty(self):
+        """Checks if the container is empty. If the container is not a leaf
+        container, also check child containers."""
+        objects = self.get_objects_in_container()
+        return len(objects) == 0
+
+    class Meta:
+        unique_together = (("row", "column", "parent"),)
+
