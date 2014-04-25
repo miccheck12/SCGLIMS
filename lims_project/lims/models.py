@@ -217,13 +217,12 @@ class Container(models.Model):
 
 
 class StorablePhysicalObjectNew(models.Model):
-
     def clean(self):
-        if self.container:
-            if not self.container.is_leaf():
-                error_msg = "Container {0} is not a leaf container!".format(self.container)
-                raise(ValidationError({"container": [error_msg, ]}))
-        super(StorablePhysicalObject, self).clean()
+        #if self.container:
+        #    if not self.container.is_leaf():
+        #        error_msg = "Container {0} is not a leaf container!".format(self.container)
+        #        raise(ValidationError({"container": [error_msg, ]}))
+        super(StorablePhysicalObjectNew, self).clean()
 
     class Meta:
         abstract = True
@@ -703,6 +702,26 @@ class Primer(StorablePhysicalObject):
         return [f.attname for f in self._meta.fields]
 
 
+class PrimerNew(StorablePhysicalObjectNew):
+    sequence = models.TextField()
+    tmelt = models.DecimalField(u"tmelt (\u00B0C)", max_digits=10,
+                                decimal_places=2)
+    concentration = models.DecimalField(u"Concentration (mol L\u207B\u00B9)",
+                                        max_length=100, max_digits=10,
+                                        decimal_places=5)
+    stock = models.PositiveIntegerField()
+    notes = models.TextField(blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
+
+    def __unicode__(self):
+        return "Primer %d" % self.pk
+
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
+
+
 class Amplicon(StorablePhysicalObject, IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
@@ -1004,7 +1023,7 @@ class ContainerNew(models.Model):
 
     # Generic relation
     qlimit = models.Q()
-    for m in models.get_models(app_mod='lims.models'):
+    for m in models.get_models(app_mod=models.get_app('lims')):
         if issubclass(m, StorablePhysicalObjectNew):
             qlimit = qlimit | models.Q(app_label='lims',
                                        model=slugify(m.__name__))

@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry, DELETION
+from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import escape
@@ -12,7 +13,7 @@ from import_export.admin import ImportExportModelAdmin
 from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
-    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType, ContainerNew
+    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType, ContainerNew, PrimerNew
 
 from lims.import_export_resources import SampleResource, ContainerResource
 
@@ -32,6 +33,22 @@ def generate_all_fields_admin(classname):
 standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType, ContainerNew]
 for model in standard_models:
     admin.site.register(model, generate_all_fields_admin(model))
+
+
+class ContainerNewInline(generic.GenericTabularInline):
+    model = ContainerNew
+    raw_id_fields = ("parent",)
+    extra = 0
+
+
+class PrimerNewAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+    ]
+    inlines = [
+        ContainerNewInline,
+    ]
+admin.site.register(PrimerNew, PrimerNewAdmin)
 
 
 class AmpliconAdmin(admin.ModelAdmin):
