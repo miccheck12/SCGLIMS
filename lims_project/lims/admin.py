@@ -13,7 +13,7 @@ from import_export.admin import ImportExportModelAdmin
 from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
-    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType, ContainerNew, PrimerNew
+    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType
 
 from lims.import_export_resources import SampleResource, ContainerResource
 
@@ -30,25 +30,15 @@ def generate_all_fields_admin(classname):
                                    ["notes"]])})
 
 # Generate standard admin classes for the standard_models
-standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType, ContainerNew]
+standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType]
 for model in standard_models:
     admin.site.register(model, generate_all_fields_admin(model))
 
 
-class ContainerNewInline(generic.GenericTabularInline):
-    model = ContainerNew
+class ContainerInline(generic.GenericTabularInline):
+    model = Container
     raw_id_fields = ("parent",)
     extra = 0
-
-
-class PrimerNewAdmin(admin.ModelAdmin):
-    list_display = [
-        'id',
-    ]
-    inlines = [
-        ContainerNewInline,
-    ]
-admin.site.register(PrimerNew, PrimerNewAdmin)
 
 
 class AmpliconAdmin(admin.ModelAdmin):
@@ -59,12 +49,13 @@ class AmpliconAdmin(admin.ModelAdmin):
         'extracted_dna',
         'index_by_group',
         'diversity_report',
-        'container',
         'buffer',
         'notes',
     ]
     readonly_fields = ('index_by_group', 'uid')
-    raw_id_fields = ("container",)
+    inlines = [
+        ContainerInline,
+    ]
 admin.site.register(Amplicon, AmpliconAdmin)
 
 
@@ -151,7 +142,6 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
         'salinity',
         'depth',
         'shipping_method',
-        'container',
         'status',
     ]
     list_display = [
@@ -161,6 +151,9 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     ] + editables
     # import_export change template to include csv
     import_template_name = 'import_export/lims_import.html'
+    inlines = [
+        ContainerInline,
+    ]
 
     #class Media:
     #    js = ('lims/admin_edit_button.js',)
@@ -183,7 +176,6 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
         return super(SampleAdmin, self).changelist_view(request,
                                                         extra_context=extra_context)
-    raw_id_fields = ("container",)
 
 admin.site.register(Sample, SampleAdmin)
 
@@ -209,10 +201,11 @@ class ExtractedCellAdmin(admin.ModelAdmin):
         'protocol',
         'index_by_group',
         'protocol',
-        'container',
         'notes'
     ]
-    raw_id_fields = ("container",)
+    inlines = [
+        ContainerInline,
+    ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
 
@@ -226,12 +219,13 @@ class ExtractedDNAAdmin(admin.ModelAdmin):
         'protocol',
         'index_by_group',
         'protocol',
-        'container',
         'concentration',
         'buffer',
         'notes',
     ]
-    raw_id_fields = ("container",)
+    inlines = [
+        ContainerInline,
+    ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
 
@@ -278,9 +272,10 @@ class DNALibraryAdmin(admin.ModelAdmin):
         'i7',
         'i5',
         'sample_name_on_platform',
-        'container',
     ]
-    raw_id_fields = ("container",)
+    inlines = [
+        ContainerInline,
+    ]
     readonly_fields = ('index_by_group', 'uid')
 admin.site.register(DNALibrary, DNALibraryAdmin)
 
@@ -290,10 +285,11 @@ class PrimerAdmin(admin.ModelAdmin):
         'id',
         'concentration',
         'tmelt',
-        'container',
         'stock',
     ]
-    raw_id_fields = ("container",)
+    inlines = [
+        ContainerInline,
+    ]
 admin.site.register(Primer, PrimerAdmin)
 
 
