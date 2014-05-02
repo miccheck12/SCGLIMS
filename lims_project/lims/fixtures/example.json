@@ -323,10 +323,607 @@
 },
 {
     "pk": 1, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "10.0",
+        "longitude": "80.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 1, 
+        "salinity": "10", 
+        "depth": "25", 
+        "collaborator": 1, 
+        "ph": "7.3", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "11A11"
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "30.0",
+        "longitude": "-80.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 1, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 1, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "22B22"
+    }
+},
+{
+    "pk": 3, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "13.0",
+        "longitude": "-20.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 1, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 2, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "ABCDE"
+    }
+},
+{
+    "pk": 4, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "-50.0",
+        "longitude": "120.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 1, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 2, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "BCDEF"
+    }
+},
+{
+    "pk": 5, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "-20.0",
+        "longitude": "-120.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 2, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 2, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "AABBB"
+    }
+},
+{
+    "pk": 6, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "10.0",
+        "longitude": "-120.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 2, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 2, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "AABBC"
+    }
+},
+{
+    "pk": 7, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "-20.0",
+        "longitude": "-50.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 3, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 3, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "AHYEH"
+    }
+},
+{
+    "pk": 8, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "-10.0",
+        "longitude": "-120.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 4, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 3, 
+        "ph": "1.5", 
+        "sample_location": 1, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "AMZNG"
+    }
+},
+{
+    "pk": 9, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "-85.0",
+        "longitude": "-170.001",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 4, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 3, 
+        "ph": "1.5", 
+        "sample_location": 4, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "VL4EV"
+    }
+},
+{
+    "pk": 10, 
+    "model": "lims.sample", 
+    "fields": {
+        "status": "used", 
+        "latitude": "50.0",
+        "longitude": "-60.01",
+        "temperature": "12", 
+        "biosafety_level": 1, 
+        "shipping_method": "car", 
+        "sample_type": 4, 
+        "salinity": "1", 
+        "depth": "123", 
+        "collaborator": 3, 
+        "ph": "1.5", 
+        "sample_location": 4, 
+        "date_received": "2013-09-01T13:20:30+01:00", 
+        "uid": "SWAGG"
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.protocol", 
+    "fields": {
+        "link": "/link/to/rpotoc", 
+        "name": "extracted_cell_protocol", 
+        "revision": "1"
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.extractedcell", 
+    "fields": {
+        "sample": 1, 
+        "index_by_group": 0, 
+        "protocol": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.extractedcell", 
+    "fields": {
+        "sample": 2, 
+        "index_by_group": 0, 
+        "protocol": 1
+    }
+},
+{
+    "pk": 3, 
+    "model": "lims.extractedcell", 
+    "fields": {
+        "sample": 2, 
+        "index_by_group": 1, 
+        "protocol": 1
+    }
+},
+{
+    "pk": 4, 
+    "model": "lims.extractedcell", 
+    "fields": {
+        "sample": 7, 
+        "index_by_group": 0, 
+        "protocol": 1
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.extracteddna", 
+    "fields": {
+        "sample": 3, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "concentration": 5,
+        "buffer": "the best one"
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.extracteddna", 
+    "fields": {
+        "sample": 4, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "concentration": 5,
+        "buffer": "the best one"
+    }
+},
+{
+    "pk": 3, 
+    "model": "lims.extracteddna", 
+    "fields": {
+        "sample": 8, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "concentration": 5,
+        "buffer": "the best one"
+    }
+},
+{
+    "pk": 4, 
+    "model": "lims.extracteddna", 
+    "fields": {
+        "sample": 9, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "concentration": 5,
+        "buffer": "the best one"
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.sagplate", 
+    "fields": {
+        "extracted_cell": 1, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "apparatus_subdivision": 2,
+        "report": "report.txt",
+        "rt_mda": 1,
+        "qpcr": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.sagplate", 
+    "fields": {
+        "extracted_cell": 2, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "apparatus_subdivision": 3,
+        "report": "report.txt",
+        "rt_mda": 2,
+        "qpcr": 2
+    }
+},
+{
+    "pk": 3, 
+    "model": "lims.sagplate", 
+    "fields": {
+        "extracted_cell": 4, 
+        "index_by_group": 0, 
+        "protocol": 1, 
+        "apparatus_subdivision": 3,
+        "report": "report.txt",
+        "rt_mda": 2,
+        "qpcr": 2
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.sagplatedilution", 
+    "fields": {
+        "sag_plate": 3,
+        "index_by_group": 0, 
+        "dilution": "1:50",
+        "apparatus_subdivision": 3,
+        "qpcr": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.sagplatedilution", 
+    "fields": {
+        "sag_plate": 3,
+        "index_by_group": 1, 
+        "dilution": "1:50",
+        "apparatus_subdivision": 3,
+        "qpcr": 1
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.qpcr", 
+    "fields": {
+        "report": "/sample1/report.txt"
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.qpcr", 
+    "fields": {
+        "report": "/sample2/report2.txt"
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.rtmda", 
+    "fields": {
+        "report": "/sample1/rtmda.txt"
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.rtmda", 
+    "fields": {
+        "report": "/sample2/rtmda.txt"
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.primer", 
+    "fields": {
+        "sequence": "ACGGGCCAATTTACC",
+        "tmelt": "25.2",
+        "concentration": 5,
+        "stock": 99
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.metagenome", 
+    "fields": {
+        "extracted_dna": 1,
+        "index_by_group": 0, 
+        "diversity_report": "report.txt"
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.metagenome", 
+    "fields": {
+        "extracted_dna": 2,
+        "index_by_group": 0, 
+        "diversity_report": "report.txt"
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.amplicon", 
+    "fields": {
+        "extracted_dna": 3,
+        "index_by_group": 0, 
+        "diversity_report": "report.txt",
+        "buffer": "the best one",
+        "primer": [1]
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.amplicon", 
+    "fields": {
+        "extracted_dna": 4,
+        "index_by_group": 0, 
+        "diversity_report": "report.txt",
+        "buffer": "magic",
+        "primer": [1]
+    }
+},
+{
+    "pk": 1, 
+    "model": "lims.sag", 
+    "fields": {
+        "sag_plate": 1,
+        "well": "O10",
+        "concentration": 5
+    }
+},
+{
+    "pk": 2, 
+    "model": "lims.sag", 
+    "fields": {
+        "sag_plate": 1,
+        "well": "N21",
+        "concentration": 5
+    }
+},
+{
+    "pk": 3, 
+    "model": "lims.sag", 
+    "fields": {
+        "sag_plate": 2,
+        "well": "I17",
+        "concentration": 5
+    }
+},
+{
+    "pk": 4, 
+    "model": "lims.sag", 
+    "fields": {
+        "sag_plate": 2,
+        "well": "B23",
+        "concentration": 5
+    }
+},
+{
+    "pk": 1,
+    "model": "lims.dnafrompureculture", 
+    "fields": {
+        "extracted_dna": 1,
+        "index_by_group": 0, 
+        "concentration": 5
+    }
+},
+{
+    "pk": 2,
+    "model": "lims.dnafrompureculture", 
+    "fields": {
+        "extracted_dna": 2,
+        "index_by_group": 0, 
+        "concentration": 5
+    }
+},
+{
+    "pk": 1,
+    "model": "lims.dnalibrary", 
+    "fields": {
+        "metagenome": 1,
+        "protocol": 1,
+        "buffer": "no idea",
+        "i7": "TAAGGCGA",
+        "i5": "TAGATCGC",
+        "sample_name_on_platform": "1a",
+        "concentration": 5,
+        "index_by_group": 0
+    }
+},
+{
+    "pk": 2,
+    "model": "lims.dnalibrary", 
+    "fields": {
+        "sag": 1,
+        "protocol": 1,
+        "buffer": "no idea",
+        "i7": "TAAGGCGA",
+        "i5": "TAGATCGC",
+        "sample_name_on_platform": "O10",
+        "concentration": 5,
+        "index_by_group": 0
+    }
+},
+{
+    "pk": 3,
+    "model": "lims.dnalibrary", 
+    "fields": {
+        "sag": 2,
+        "protocol": 1,
+        "buffer": "no idea",
+        "i7": "TAAGGCGA",
+        "i5": "TAGATCGC",
+        "sample_name_on_platform": "N21",
+        "concentration": 5,
+        "index_by_group": 0
+    }
+},
+{
+    "pk": 4,
+    "model": "lims.dnalibrary", 
+    "fields": {
+        "pure_culture": 1,
+        "protocol": 1,
+        "buffer": "no idea",
+        "i7": "TAAGGCGA",
+        "i5": "TAGATCGC",
+        "sample_name_on_platform": "1114",
+        "concentration": 5,
+        "index_by_group": 0
+    }
+},
+{
+    "pk": 5,
+    "model": "lims.dnalibrary", 
+    "fields": {
+        "amplicon": 1,
+        "protocol": 1,
+        "buffer": "no idea",
+        "i7": "TAAGGCGA",
+        "i5": "TAGATCGC",
+        "sample_name_on_platform": "cil111",
+        "concentration": 5,
+        "index_by_group": 0
+    }
+},
+{
+    "pk": 1,
+    "model": "lims.sequencingrun", 
+    "fields": {
+        "uid": "110930_M00123_0073_000000000-AAAA3",
+        "sequencing_center": "NGI Uppsala",
+        "date": "2013-09-01T13:20:30+01:00",
+        "machine": "MiSeq",
+        "report": "report.txt",
+        "folder": "path/to",
+        "dna_library": [1],
+        "protocol": 1
+    }
+},
+{
+    "pk": 1,
+    "model": "lims.readfile", 
+    "fields": {
+        "folder": "/seq/sequencing_run/sample_xxx",
+        "filename": "pair1.fastq.gz",
+        "pair": 1,
+        "lane": 1,
+        "read_count": 25,
+        "dna_library": 1,
+        "sequencing_run": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "lims.readfile", 
+    "fields": {
+        "folder": "/seq/sequencing_run/sample_xxx",
+        "filename": "pair2.fastq.gz",
+        "pair": 2,
+        "lane": 1,
+        "read_count": 25,
+        "dna_library": 1,
+        "sequencing_run": 1
+    }
+},
+{
+    "pk": 1, 
     "model": "lims.container", 
     "fields": {
         "type": 1,
-        "apparatus_subdivision": 1
+        "apparatus_subdivision": 1,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 1
     }
 },
 {
@@ -334,7 +931,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 1,
-        "apparatus_subdivision": 1
+        "apparatus_subdivision": 1,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 2
     }
 },
 {
@@ -350,7 +952,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 4
     }
 },
 {
@@ -358,7 +965,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 5
     }
 },
 {
@@ -366,7 +978,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 6
     }
 },
 {
@@ -374,7 +991,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 7
     }
 },
 {
@@ -382,7 +1004,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 8
     }
 },
 {
@@ -390,7 +1017,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 9
     }
 },
 {
@@ -398,7 +1030,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 10
     }
 },
 {
@@ -406,7 +1043,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extractedcell"
+        ],
+        "object_id": 1
     }
 },
 {
@@ -414,7 +1056,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extractedcell"
+        ],
+        "object_id": 2
     }
 },
 {
@@ -422,7 +1069,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extractedcell"
+        ],
+        "object_id": 3
     }
 },
 {
@@ -430,7 +1082,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extractedcell"
+        ],
+        "object_id": 1
     }
 },
 {
@@ -438,7 +1095,13 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extracteddna"
+        ],
+        "object_id": 2
+
     }
 },
 {
@@ -446,7 +1109,13 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extracteddna"
+        ],
+        "object_id": 3
+
     }
 },
 {
@@ -454,7 +1123,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "extracteddna"
+        ],
+        "object_id": 4
     }
 },
 {
@@ -518,7 +1192,13 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "dnalibrary"
+        ],
+        "object_id": 1
+
     }
 },
 {
@@ -526,7 +1206,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "dnalibrary"
+        ],
+        "object_id": 2
     }
 },
 {
@@ -534,7 +1219,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "dnalibrary"
+        ],
+        "object_id": 3
     }
 },
 {
@@ -542,7 +1232,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "dnalibrary"
+        ],
+        "object_id": 4
     }
 },
 {
@@ -550,7 +1245,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "dnalibrary"
+        ],
+        "object_id": 5
     }
 },
 {
@@ -558,7 +1258,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "primer"
+        ],
+        "object_id": 1
     }
 },
 {
@@ -566,7 +1271,13 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "amplicon"
+        ],
+        "object_id": 1
+
     }
 },
 {
@@ -574,7 +1285,13 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "amplicon"
+        ],
+        "object_id": 2
+
     }
 },
 {
@@ -590,7 +1307,12 @@
     "model": "lims.container", 
     "fields": {
         "type": 4,
-        "parent": 3
+        "parent": 3,
+        "content_type": [
+            "lims",
+            "sample"
+        ],
+        "object_id": 3
     }
 },
 {
@@ -719,624 +1441,6 @@
     "fields": {
         "type": 4,
         "parent": 3
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "10.0",
-        "longitude": "80.001",
-        "container": 1, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 1, 
-        "salinity": "10", 
-        "depth": "25", 
-        "collaborator": 1, 
-        "ph": "7.3", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "11A11"
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "30.0",
-        "longitude": "-80.001",
-        "container": 2, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 1, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 1, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "22B22"
-    }
-},
-{
-    "pk": 3, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "13.0",
-        "longitude": "-20.001",
-        "container": 34, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 1, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 2, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "ABCDE"
-    }
-},
-{
-    "pk": 4, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "-50.0",
-        "longitude": "120.001",
-        "container": 4, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 1, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 2, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "BCDEF"
-    }
-},
-{
-    "pk": 5, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "-20.0",
-        "longitude": "-120.001",
-        "container": 5, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 2, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 2, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "AABBB"
-    }
-},
-{
-    "pk": 6, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "10.0",
-        "longitude": "-120.001",
-        "container": 6, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 2, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 2, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "AABBC"
-    }
-},
-{
-    "pk": 7, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "-20.0",
-        "longitude": "-50.001",
-        "container": 7, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 3, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 3, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "AHYEH"
-    }
-},
-{
-    "pk": 8, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "-10.0",
-        "longitude": "-120.001",
-        "container": 8, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 4, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 3, 
-        "ph": "1.5", 
-        "sample_location": 1, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "AMZNG"
-    }
-},
-{
-    "pk": 9, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "-85.0",
-        "longitude": "-170.001",
-        "container": 9, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 4, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 3, 
-        "ph": "1.5", 
-        "sample_location": 4, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "VL4EV"
-    }
-},
-{
-    "pk": 10, 
-    "model": "lims.sample", 
-    "fields": {
-        "status": "used", 
-        "latitude": "50.0",
-        "longitude": "-60.01",
-        "container": 10, 
-        "temperature": "12", 
-        "biosafety_level": 1, 
-        "shipping_method": "car", 
-        "sample_type": 4, 
-        "salinity": "1", 
-        "depth": "123", 
-        "collaborator": 3, 
-        "ph": "1.5", 
-        "sample_location": 4, 
-        "date_received": "2013-09-01T13:20:30+01:00", 
-        "uid": "SWAGG"
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.protocol", 
-    "fields": {
-        "link": "/link/to/rpotoc", 
-        "name": "extracted_cell_protocol", 
-        "revision": "1"
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.extractedcell", 
-    "fields": {
-        "sample": 1, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 11
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.extractedcell", 
-    "fields": {
-        "sample": 2, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 12
-    }
-},
-{
-    "pk": 3, 
-    "model": "lims.extractedcell", 
-    "fields": {
-        "sample": 2, 
-        "index_by_group": 1, 
-        "protocol": 1, 
-        "container": 13
-    }
-},
-{
-    "pk": 4, 
-    "model": "lims.extractedcell", 
-    "fields": {
-        "sample": 7, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 14
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.extracteddna", 
-    "fields": {
-        "sample": 3, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 15,
-        "concentration": 5,
-        "buffer": "the best one"
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.extracteddna", 
-    "fields": {
-        "sample": 4, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 16,
-        "concentration": 5,
-        "buffer": "the best one"
-    }
-},
-{
-    "pk": 3, 
-    "model": "lims.extracteddna", 
-    "fields": {
-        "sample": 8, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 17,
-        "concentration": 5,
-        "buffer": "the best one"
-    }
-},
-{
-    "pk": 4, 
-    "model": "lims.extracteddna", 
-    "fields": {
-        "sample": 9, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "container": 18,
-        "concentration": 5,
-        "buffer": "the best one"
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.sagplate", 
-    "fields": {
-        "extracted_cell": 1, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "apparatus_subdivision": 2,
-        "report": "report.txt",
-        "rt_mda": 1,
-        "qpcr": 1
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.sagplate", 
-    "fields": {
-        "extracted_cell": 2, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "apparatus_subdivision": 3,
-        "report": "report.txt",
-        "rt_mda": 2,
-        "qpcr": 2
-    }
-},
-{
-    "pk": 3, 
-    "model": "lims.sagplate", 
-    "fields": {
-        "extracted_cell": 4, 
-        "index_by_group": 0, 
-        "protocol": 1, 
-        "apparatus_subdivision": 3,
-        "report": "report.txt",
-        "rt_mda": 2,
-        "qpcr": 2
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.sagplatedilution", 
-    "fields": {
-        "sag_plate": 3,
-        "index_by_group": 0, 
-        "dilution": "1:50",
-        "apparatus_subdivision": 3,
-        "qpcr": 1
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.sagplatedilution", 
-    "fields": {
-        "sag_plate": 3,
-        "index_by_group": 1, 
-        "dilution": "1:50",
-        "apparatus_subdivision": 3,
-        "qpcr": 1
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.qpcr", 
-    "fields": {
-        "report": "/sample1/report.txt"
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.qpcr", 
-    "fields": {
-        "report": "/sample2/report2.txt"
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.rtmda", 
-    "fields": {
-        "report": "/sample1/rtmda.txt"
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.rtmda", 
-    "fields": {
-        "report": "/sample2/rtmda.txt"
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.primer", 
-    "fields": {
-        "sequence": "ACGGGCCAATTTACC",
-        "container": 30,
-        "tmelt": "25.2",
-        "concentration": 5,
-        "stock": 99
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.metagenome", 
-    "fields": {
-        "extracted_dna": 1,
-        "index_by_group": 0, 
-        "diversity_report": "report.txt"
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.metagenome", 
-    "fields": {
-        "extracted_dna": 2,
-        "index_by_group": 0, 
-        "diversity_report": "report.txt"
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.amplicon", 
-    "fields": {
-        "extracted_dna": 3,
-        "index_by_group": 0, 
-        "diversity_report": "report.txt",
-        "buffer": "the best one",
-        "container": 31,
-        "primer": [1]
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.amplicon", 
-    "fields": {
-        "extracted_dna": 4,
-        "index_by_group": 0, 
-        "diversity_report": "report.txt",
-        "buffer": "magic",
-        "container": 32,
-        "primer": [1]
-    }
-},
-{
-    "pk": 1, 
-    "model": "lims.sag", 
-    "fields": {
-        "sag_plate": 1,
-        "well": "O10",
-        "concentration": 5
-    }
-},
-{
-    "pk": 2, 
-    "model": "lims.sag", 
-    "fields": {
-        "sag_plate": 1,
-        "well": "N21",
-        "concentration": 5
-    }
-},
-{
-    "pk": 3, 
-    "model": "lims.sag", 
-    "fields": {
-        "sag_plate": 2,
-        "well": "I17",
-        "concentration": 5
-    }
-},
-{
-    "pk": 4, 
-    "model": "lims.sag", 
-    "fields": {
-        "sag_plate": 2,
-        "well": "B23",
-        "concentration": 5
-    }
-},
-{
-    "pk": 1,
-    "model": "lims.dnafrompureculture", 
-    "fields": {
-        "extracted_dna": 1,
-        "index_by_group": 0, 
-        "concentration": 5
-    }
-},
-{
-    "pk": 2,
-    "model": "lims.dnafrompureculture", 
-    "fields": {
-        "extracted_dna": 2,
-        "index_by_group": 0, 
-        "concentration": 5
-    }
-},
-{
-    "pk": 1,
-    "model": "lims.dnalibrary", 
-    "fields": {
-        "metagenome": 1,
-        "protocol": 1,
-        "buffer": "no idea",
-        "i7": "TAAGGCGA",
-        "i5": "TAGATCGC",
-        "sample_name_on_platform": "1a",
-        "concentration": 5,
-        "container": 25,
-        "index_by_group": 0
-    }
-},
-{
-    "pk": 2,
-    "model": "lims.dnalibrary", 
-    "fields": {
-        "sag": 1,
-        "protocol": 1,
-        "buffer": "no idea",
-        "i7": "TAAGGCGA",
-        "i5": "TAGATCGC",
-        "sample_name_on_platform": "O10",
-        "concentration": 5,
-        "container": 26,
-        "index_by_group": 0
-    }
-},
-{
-    "pk": 3,
-    "model": "lims.dnalibrary", 
-    "fields": {
-        "sag": 2,
-        "protocol": 1,
-        "buffer": "no idea",
-        "i7": "TAAGGCGA",
-        "i5": "TAGATCGC",
-        "sample_name_on_platform": "N21",
-        "concentration": 5,
-        "container": 27,
-        "index_by_group": 0
-    }
-},
-{
-    "pk": 4,
-    "model": "lims.dnalibrary", 
-    "fields": {
-        "pure_culture": 1,
-        "protocol": 1,
-        "buffer": "no idea",
-        "i7": "TAAGGCGA",
-        "i5": "TAGATCGC",
-        "sample_name_on_platform": "1114",
-        "concentration": 5,
-        "container": 28,
-        "index_by_group": 0
-    }
-},
-{
-    "pk": 5,
-    "model": "lims.dnalibrary", 
-    "fields": {
-        "amplicon": 1,
-        "protocol": 1,
-        "buffer": "no idea",
-        "i7": "TAAGGCGA",
-        "i5": "TAGATCGC",
-        "sample_name_on_platform": "cil111",
-        "concentration": 5,
-        "container": 29,
-        "index_by_group": 0
-    }
-},
-{
-    "pk": 1,
-    "model": "lims.sequencingrun", 
-    "fields": {
-        "uid": "110930_M00123_0073_000000000-AAAA3",
-        "sequencing_center": "NGI Uppsala",
-        "date": "2013-09-01T13:20:30+01:00",
-        "machine": "MiSeq",
-        "report": "report.txt",
-        "folder": "path/to",
-        "dna_library": [1],
-        "protocol": 1
-    }
-},
-{
-    "pk": 1,
-    "model": "lims.readfile", 
-    "fields": {
-        "folder": "/seq/sequencing_run/sample_xxx",
-        "filename": "pair1.fastq.gz",
-        "pair": 1,
-        "lane": 1,
-        "read_count": 25,
-        "dna_library": 1,
-        "sequencing_run": 1
-    }
-},
-{
-    "pk": 2,
-    "model": "lims.readfile", 
-    "fields": {
-        "folder": "/seq/sequencing_run/sample_xxx",
-        "filename": "pair2.fastq.gz",
-        "pair": 2,
-        "lane": 1,
-        "read_count": 25,
-        "dna_library": 1,
-        "sequencing_run": 1
     }
 }
 ]

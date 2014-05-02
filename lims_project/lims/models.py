@@ -7,6 +7,9 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+from django.template.defaultfilters import slugify
 
 
 def property_verbose(description):
@@ -106,6 +109,18 @@ class Container(models.Model):
                                               null=True)
     notes = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
+
+    # Generic relation
+    qlimit = models.Q(app_label="lims", model="sample") | \
+             models.Q(app_label="lims", model="primer") | \
+             models.Q(app_label="lims", model="extractedcell") | \
+             models.Q(app_label="lims", model="extracteddna") | \
+             models.Q(app_label="lims", model="amplicon") | \
+             models.Q(app_label="lims", model="dnalibrary")
+    content_type = models.ForeignKey(ContentType, limit_choices_to=qlimit, null=True, blank=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
 
     @property
     def barcode(self):
@@ -214,23 +229,40 @@ class Container(models.Model):
 
 
 class StorablePhysicalObject(models.Model):
-    container = models.OneToOneField(Container, blank=True, null=True)
-
     def clean(self):
-        if self.container:
-            if not self.container.is_leaf():
-                error_msg = "Container {0} is not a leaf container!".format(self.container)
-                raise(ValidationError({"container": [error_msg, ]}))
-            if self.container.nr_objects_in_container > 1:
-                error_msg = """Container {0} is not empty. It contains
-                    {1} objects i.e. {2}.""".format(self.container,
-                                                    self.container.nr_objects_in_container,
-                                                    self.container.get_objects_in_container())
-                raise(ValidationError({"container": [error_msg, ]}))
+        #if self.container:
+        #    if not self.container.is_leaf():
+        #        error_msg = "Container {0} is not a leaf container!".format(self.container)
+        #        raise(ValidationError({"container": [error_msg, ]}))
         super(StorablePhysicalObject, self).clean()
 
     class Meta:
         abstract = True
+
+    containers = generic.GenericRelation(Container,
+                                         content_type_field="content_type",
+                                         object_id_field="object_id")
+
+
+#class StorablePhysicalObject(models.Model):
+#    container = models.OneToOneField(Container, blank=True, null=True)
+#
+#    def clean(self):
+#        if self.container:
+#            if not self.container.is_leaf():
+#                error_msg = "Container {0} is not a leaf container!".format(self.container)
+#                raise(ValidationError({"container": [error_msg, ]}))
+#            if self.container.nr_objects_in_container > 1:
+#                error_msg = """Container {0} is not empty. It contains
+#                    {1} objects i.e. {2}.""".format(self.container,
+#                                                    self.container.nr_objects_in_container,
+#                                                    self.container.get_objects_in_container())
+#                raise(ValidationError({"container": [error_msg, ]}))
+#        super(StorablePhysicalObject, self).clean()
+#
+#    class Meta:
+#        abstract = True
+#
 
 
 class IndexByGroup(models.Model):
@@ -965,3 +997,5 @@ class UserProfile(AbstractUser):
 
     #USERNAME_FIELD = 'fullname'
     #REQUIRED_FIELDS = ['']
+
+
