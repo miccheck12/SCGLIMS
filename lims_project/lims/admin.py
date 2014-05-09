@@ -56,6 +56,7 @@ class AmpliconAdmin(admin.ModelAdmin):
     inlines = [
         ContainerInline,
     ]
+    raw_id_fields = ("extracted_dna",)
 admin.site.register(Amplicon, AmpliconAdmin)
 
 
@@ -207,6 +208,7 @@ class ExtractedCellAdmin(admin.ModelAdmin):
         ContainerInline,
     ]
     readonly_fields = ('index_by_group', 'uid')
+    raw_id_fields = ("sample",)
 admin.site.register(ExtractedCell, ExtractedCellAdmin)
 
 
@@ -227,6 +229,7 @@ class ExtractedDNAAdmin(admin.ModelAdmin):
         ContainerInline,
     ]
     readonly_fields = ('index_by_group', 'uid')
+    raw_id_fields = ("sample",)
 admin.site.register(ExtractedDNA, ExtractedDNAAdmin)
 
 
@@ -244,6 +247,7 @@ class SAGPlateAdmin(admin.ModelAdmin):
         'notes',
     ]
     readonly_fields = ('index_by_group', 'uid')
+    raw_id_fields = ("extracted_cell",)
 admin.site.register(SAGPlate, SAGPlateAdmin)
 
 
@@ -257,6 +261,7 @@ class SAGPlateDilutionAdmin(admin.ModelAdmin):
         'dilution',
     ]
     readonly_fields = ('index_by_group', 'uid')
+    raw_id_fields = ("sag_plate",)
 admin.site.register(SAGPlateDilution, SAGPlateDilutionAdmin)
 
 
@@ -277,6 +282,7 @@ class DNALibraryAdmin(admin.ModelAdmin):
         ContainerInline,
     ]
     readonly_fields = ('index_by_group', 'uid')
+    raw_id_fields = ("amplicon", "metagenome", "sag", "pure_culture")
 admin.site.register(DNALibrary, DNALibraryAdmin)
 
 
