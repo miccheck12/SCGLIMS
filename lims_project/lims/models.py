@@ -187,10 +187,12 @@ class Container(models.Model):
             'date',
         ]
 
+    @property
     def is_root(self):
         """Check if container is a root container"""
         return self.parent is None
 
+    @property
     def is_leaf(self):
         """Check if container is a leaf container"""
         return len(self.child.all()) == 0
@@ -198,31 +200,31 @@ class Container(models.Model):
     def get_objects_in_container(self):
         """Get all objects in the container. If this is not a leaf container,
         also get child objects."""
-        objects = []
-        for ro in self._meta.get_all_related_objects():
-            if ro.get_accessor_name() in ['child']:
-                children = getattr(self, ro.get_accessor_name()).all()
-                for ch in children:
-                    objects.extend(ch.get_objects_in_container())
-            else:
-                try:
-                    obj = getattr(self, ro.get_accessor_name())
-                    objects.append(obj)
-                except ObjectDoesNotExist:
-                    continue
-        return objects
+        if self.is_leaf:
+            return [] if self.is_empty else [self.content_object]
+        else:
+            objects = []
+            for c in self.child.all():
+                objects.extend(c.get_objects_in_container())
+            return objects
 
     @property
     def nr_objects_in_container(self):
         """Count number of objects in the container"""
-        return len(self.get_objects_in_container())
+        if self.is_leaf:
+            return 0 if self.is_empty else 1
+        else:
+            count = 0
+            for c in self.child.all():
+                if c.is_leaf:
+                    count += 1
+            return count
 
     @property
     def is_empty(self):
         """Checks if the container is empty. If the container is not a leaf
         container, also check child containers."""
-        objects = self.get_objects_in_container()
-        return len(objects) == 0
+        return self.object_id is None
 
     class Meta:
         unique_together = (("row", "column", "parent"),)
@@ -230,11 +232,11 @@ class Container(models.Model):
 
 class StorablePhysicalObject(models.Model):
     def clean(self):
-        #if self.container:
-        #    if not self.container.is_leaf():
-        #        error_msg = "Container {0} is not a leaf container!".format(self.container)
-        #        raise(ValidationError({"container": [error_msg, ]}))
-        super(StorablePhysicalObject, self).clean()
+        for c in self.containers.all():
+            if not c.is_leaf:
+                error_msg = "Container {0} is not a leaf container!".format(c)
+                raise(ValidationError({"containers": [error_msg, ]}))
+            super(StorablePhysicalObject, self).clean()
 
     class Meta:
         abstract = True
