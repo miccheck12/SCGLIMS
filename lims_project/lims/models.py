@@ -11,7 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.template.defaultfilters import slugify
 
-
 def property_verbose(description):
     """Make the function a property and give it a description. Normal property
     decoration does not work with short_description"""
@@ -69,12 +68,44 @@ class ApparatusSubdivision(models.Model):
         ]
 
 
+class BarcodePrinter(models.Model):
+    name = models.CharField(max_length=100)
+    template = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+
+class BarcodeToModel(models.Model):
+    qlimit = models.Q(app_label="lims", model="sample") | \
+             models.Q(app_label="lims", model="primer") | \
+             models.Q(app_label="lims", model="extractedcell") | \
+             models.Q(app_label="lims", model="extracteddna") | \
+             models.Q(app_label="lims", model="amplicon") | \
+             models.Q(app_label="lims", model="sagplate") | \
+             models.Q(app_label="lims", model="sagplatedilution") | \
+             models.Q(app_label="lims", model="dnalibrary")
+    content_type = models.ForeignKey(ContentType, limit_choices_to=qlimit, null=True, blank=True)
+    barcode = models.ForeignKey(BarcodePrinter)
+    barcode_fields = models.TextField(blank=True, help_text="Specify space-separated list of fields")
+
+    def __unicode__(self):
+        return "{0} - {1}".format(self.barcode, self.content_type)
+
+
+class CanPrintBarcode(object):
+    def print_barcode(self):
+        return "ola"
+
+
 class ContainerType(models.Model):
     """The type of container e.g. petri dish, 384 well plate, bag, well,
     etc."""
     name = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    divisible = models.BooleanField(default=False)
+    barcode = models.ForeignKey(BarcodePrinter, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -233,8 +264,9 @@ class Container(models.Model):
 class StorablePhysicalObject(models.Model):
     def clean(self):
         for c in self.containers.all():
-            if not c.is_leaf:
-                error_msg = "Container {0} is not a leaf container!".format(c)
+            if c.type.divisible:
+                error_msg = "Container {0} is divisible. You should store it in"
+                "a container that can't be subdivided any further.".format(c)
                 raise(ValidationError({"containers": [error_msg, ]}))
             super(StorablePhysicalObject, self).clean()
 

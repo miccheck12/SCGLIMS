@@ -13,7 +13,7 @@ from import_export.admin import ImportExportModelAdmin
 from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, SampleType, SampleLocation, \
     Protocol, ExtractedCell, ExtractedDNA, QPCR, RTMDA, SAGPlate, \
     SAGPlateDilution, DNALibrary, SequencingRun, Metagenome, Primer, \
-    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType
+    Amplicon, SAG, DNAFromPureCulture, ReadFile, Container, ContainerType, BarcodePrinter, BarcodeToModel
 
 from lims.import_export_resources import SampleResource, ContainerResource
 
@@ -30,7 +30,7 @@ def generate_all_fields_admin(classname):
                                    ["notes"]])})
 
 # Generate standard admin classes for the standard_models
-standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType]
+standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType, BarcodePrinter, BarcodeToModel]
 for model in standard_models:
     admin.site.register(model, generate_all_fields_admin(model))
 

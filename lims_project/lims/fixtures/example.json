@@ -297,28 +297,32 @@
     "pk": 1, 
     "model": "lims.containertype", 
     "fields": {
-        "name": "Petri Dish"
+        "name": "Petri Dish",
+        "divisible": 0
     }
 },
 {
     "pk": 2, 
     "model": "lims.containertype", 
     "fields": {
-        "name": "384 Well Plate"
+        "name": "384 Well Plate",
+        "divisible": 1
     }
 },
 {
     "pk": 3, 
     "model": "lims.containertype", 
     "fields": {
-        "name": "Bag"
+        "name": "Bag",
+        "divisible": 0
     }
 },
 {
     "pk": 4, 
     "model": "lims.containertype", 
     "fields": {
-        "name": "Well"
+        "name": "Well",
+        "divisible": 0
     }
 },
 {
