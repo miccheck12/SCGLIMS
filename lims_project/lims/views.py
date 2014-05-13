@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.utils.text import capfirst
 
-from lims.models import Container, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, SAG
+from lims.models import Container, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, ExtractedDNA, SAG
 
 
 def index(request):
@@ -78,13 +78,27 @@ def barcode_index(request):
 
 
 def barcode_search(request, barcode):
+    barcode_model = {
+        "SA": Sample,
+        "CO": Container,
+        "EC": ExtractedCell,
+        "ED": ExtractedDNA,
+        "SP": SAGPlate if barcode[-1].isupper() else SAGPlateDilution,
+    }[barcode[:2]]
+
     if barcode.startswith("SA:"):
-        s = list(Sample.objects.filter(uid=barcode[3:]))
+        s = list(barcode_model.objects.filter(uid=barcode[3:]))
         if len(s) == 1:
             return default_object_table(Sample)(request, s[0].id)
         else:
-            print("ERR: More than one or zero samples with given barcode", file=sys.stderr)
+            print("ERR: More than one or zero objects with given barcode", file=sys.stderr)
     elif barcode.startswith("CO:"):
         c = Container.objects.get(pk=int(barcode[3:]))
         return default_object_table(Container)(request, c.id)
+    else:
+        s = list(barcode_model.objects.filter(uid=barcode[3:]))
+        if len(s) == 1:
+            return default_object_table(Sample)(request, s[0].id)
+        else:
+            print("ERR: More than one or zero objects with given barcode", file=sys.stderr)
     raise Http404
