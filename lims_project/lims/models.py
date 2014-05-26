@@ -29,7 +29,7 @@ class Apparatus(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return unicode(self.name)
 
     class Meta:
         verbose_name_plural = "Apparatus"
@@ -55,7 +55,7 @@ class ApparatusSubdivision(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "{0} {1}".format(self.apparatus, self.name)
+        return unicode("{0} {1}".format(self.apparatus, self.name))
 
     @property
     def preferred_ordering(self):
@@ -73,7 +73,7 @@ class BarcodePrinter(models.Model):
     template = models.TextField(blank=True)
 
     def __unicode__(self):
-        return self.name
+        return unicode(self.name)
 
 
 class BarcodeToModel(models.Model):
@@ -90,7 +90,7 @@ class BarcodeToModel(models.Model):
     barcode_fields = models.TextField(blank=True, help_text="Specify space-separated list of fields")
 
     def __unicode__(self):
-        return "{0} - {1}".format(self.barcode, self.content_type)
+        return unicode("{0} - {1}".format(self.barcode, self.content_type))
 
 
 class CanPrintBarcode(object):
@@ -108,7 +108,7 @@ class ContainerType(models.Model):
     barcode = models.ForeignKey(BarcodePrinter, null=True, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return unicode(self.name)
 
     @property
     def preferred_ordering(self):
@@ -152,7 +152,6 @@ class Container(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-
     @property
     def barcode(self):
         return "CO:%06d" % (self.pk if self.pk else 0)
@@ -188,7 +187,7 @@ class Container(models.Model):
             "apparatus_subdivision. Child containers not."))
 
     def __unicode__(self):
-        return "%s %s" % (self.type, self.barcode)
+        return unicode("%s-%s") % (self.type, self.barcode)
 
     def clean(self):
         if bool(self.parent) and bool(self.apparatus_subdivision):
@@ -350,7 +349,7 @@ class Collaborator(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "%s %s" % (self.first_name, self.last_name)
+        return unicode("%s %s" % (self.first_name, self.last_name))
 
     @property
     def preferred_ordering(self):
@@ -364,7 +363,7 @@ class SampleType(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "%s" % (self.name)
+        return unicode("%s" % (self.name))
 
     @property
     def preferred_ordering(self):
@@ -378,7 +377,7 @@ class SampleLocation(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "%s" % (self.name)
+        return unicode("%s" % (self.name))
 
     @property
     def preferred_ordering(self):
@@ -424,7 +423,7 @@ class Sample(StorablePhysicalObject, models.Model):
         return "SA:" + str(self.uid)
 
     def __unicode__(self):
-        return "%s" % (self.uid)
+        return unicode("%s" % (self.uid))
 
     def clean(self):
         if re.match("^[A-Z0-9]{5}$", str(self.uid)) is None:
@@ -465,7 +464,7 @@ class Protocol(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "%s" % (self.name)
+        return unicode("%s" % (self.name))
 
 
 class ExtractedCell(StorablePhysicalObject, IndexByGroup):
@@ -489,7 +488,7 @@ class ExtractedCell(StorablePhysicalObject, IndexByGroup):
         return "%s_%s" % (self.group.uid, self.index_by_group + 1)
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -553,7 +552,7 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -580,7 +579,7 @@ class QPCR(models.Model):
         verbose_name_plural = "QPCRs"
 
     def __unicode__(self):
-        return self.report
+        return unicode(self.report)
 
     @property
     def preferred_ordering(self):
@@ -597,7 +596,7 @@ class RTMDA(models.Model):
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
-        return self.report
+        return unicode(self.report)
 
 
 class SAGPlate(IndexByGroup):
@@ -639,7 +638,7 @@ class SAGPlate(IndexByGroup):
         verbose_name_plural = verbose_name + "s"
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -688,7 +687,7 @@ class SAGPlateDilution(IndexByGroup):
         verbose_name_plural = verbose_name + "s"
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -723,7 +722,7 @@ class Metagenome(IndexByGroup):
             self.index_to_naming_scheme()
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -745,7 +744,7 @@ class Primer(StorablePhysicalObject):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "Primer %d" % self.pk
+        return unicode("Primer %d" % self.pk)
 
     @property
     def preferred_ordering(self):
@@ -778,7 +777,7 @@ class Amplicon(StorablePhysicalObject, IndexByGroup):
             self.index_to_naming_scheme()
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -822,7 +821,7 @@ class SAG(models.Model):
         return "%s_%s" % (sag_uid, self.well)
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def sample(self):
@@ -871,7 +870,7 @@ class DNAFromPureCulture(IndexByGroup):
             self.index_to_naming_scheme()
 
     def __unicode__(self):
-        return self.uid
+        return unicode(self.uid)
 
     @property
     def preferred_ordering(self):
@@ -970,7 +969,7 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
         verbose_name_plural = verbose_name[:-1] + "ies"
 
     def __unicode__(self):
-        return "%s" % (self.uid)
+        return unicode("%s") % (self.uid)
 
     @property
     def preferred_ordering(self):
@@ -1001,7 +1000,7 @@ class SequencingRun(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
 
     def __unicode__(self):
-        return "%s" % (self.uid)
+        return unicode("%s") % (self.uid)
 
     @property
     def preferred_ordering(self):
@@ -1026,10 +1025,8 @@ class ReadFile(models.Model):
 
 
 class UserProfile(AbstractUser):
-    fullname = models.CharField(max_length=30, unique=True)
+    #username = models.CharField(max_length=30, unique=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
 
-    #USERNAME_FIELD = 'fullname'
+    #USERNAME_FIELD = 'username'
     #REQUIRED_FIELDS = ['']
-
-
