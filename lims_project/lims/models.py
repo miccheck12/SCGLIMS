@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.template.defaultfilters import slugify
 
+
 def property_verbose(description):
     """Make the function a property and give it a description. Normal property
     decoration does not work with short_description"""
@@ -18,6 +19,11 @@ def property_verbose(description):
         function.short_description = description
         return property(function)
     return property_verbose_inner
+
+
+class UIDManager(models.Manager):
+    def get_by_natural_key(self, uid):
+        return self.get(uid=uid)
 
 
 class Apparatus(models.Model):
@@ -77,14 +83,15 @@ class BarcodePrinter(models.Model):
 
 
 class BarcodeToModel(models.Model):
-    qlimit = models.Q(app_label="lims", model="sample") | \
-             models.Q(app_label="lims", model="primer") | \
-             models.Q(app_label="lims", model="extractedcell") | \
-             models.Q(app_label="lims", model="extracteddna") | \
-             models.Q(app_label="lims", model="amplicon") | \
-             models.Q(app_label="lims", model="sagplate") | \
-             models.Q(app_label="lims", model="sagplatedilution") | \
-             models.Q(app_label="lims", model="dnalibrary")
+    qlimit = \
+        models.Q(app_label="lims", model="sample") | \
+        models.Q(app_label="lims", model="primer") | \
+        models.Q(app_label="lims", model="extractedcell") | \
+        models.Q(app_label="lims", model="extracteddna") | \
+        models.Q(app_label="lims", model="amplicon") | \
+        models.Q(app_label="lims", model="sagplate") | \
+        models.Q(app_label="lims", model="sagplatedilution") | \
+        models.Q(app_label="lims", model="dnalibrary")
     content_type = models.ForeignKey(ContentType, limit_choices_to=qlimit, null=True, blank=True)
     barcode = models.ForeignKey(BarcodePrinter)
     barcode_fields = models.TextField(blank=True, help_text="Specify space-separated list of fields")
@@ -299,38 +306,59 @@ class StorablePhysicalObject(models.Model):
 
 
 class IndexByGroup(models.Model):
+    """IndexByGroup allows one to group a model by another model and get the
+    index based on that. An attribute character_list can be given to support a
+    naming scheme that converts the indexes to characters."""
     def get_count_by_group(self):
+        """Count the number of objects related to the object's group"""
         return self.__class__.objects.filter(**{self.group_id_keyword: self.group.id}).count()
 
     def get_max_by_group(self):
+        """Gives the maximum index_by_group."""
         return self.__class__.objects.filter(
             **{self.group_id_keyword: self.group.id}).aggregate(
             models.Max('index_by_group'))['index_by_group__max']
 
     def calc_index_by_group(self):
+        """Returns index_by_group and calculates it if non-existent"""
+        # calculate if this is a new instance
         if self.pk is None:
             index_by_group = self.get_count_by_group()
             if hasattr(self, 'character_list') \
               and index_by_group >= len(self.character_list):
                 raise(Exception("Too many objects, only %i %s supported by "
                                 "naming scheme" % (len(self.character_list),
-                                                   self.__class__)))
+                                                self.__class__)))
             return index_by_group
         else:
-            return self.index_by_group
+            try:
+                return self.index_by_group
+            except AttributeError:
+                raise(Exception("Object has pk but no index_by_group"))
 
     def save(self):
+        """Determine index_by_group on save"""
         if self.pk is None:
             self.index_by_group = self.calc_index_by_group()
         super(IndexByGroup, self).save()
 
     def index_to_naming_scheme(self):
         try:
+            print(self.index_by_group, file=sys.stderr)
             return self.character_list[self.index_by_group]
         except IndexError:
             raise(Exception("Too many objects, only %i %s supported by naming"
                             "scheme" % (len(self.character_list),
                                         self.__class__)))
+
+    @classmethod
+    def naming_scheme_to_index(cls, name):
+        try:
+            return cls.character_list.index(name)
+        except AttributeError:
+            return int(name)
+        except ValueError as e:
+            raise e
 
     class Meta:
         abstract = True
@@ -343,7 +371,7 @@ class Collaborator(models.Model):
     last_name = models.CharField(max_length=100)
     institution = models.CharField(max_length=100)
     address = models.TextField()
-    phone = models.CharField(max_length=100)
+    phone = models.CharField(max_length=100, blank=True)
     email = models.EmailField()
     notes = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
@@ -386,7 +414,8 @@ class SampleLocation(models.Model):
 
 
 class Sample(StorablePhysicalObject, models.Model):
-    uid = models.CharField("UID", max_length=20, unique=True)
+    uid = models.CharField("UID", max_length=30, unique=True,
+        help_text="UID should consist of five alphanumeric characters. Only capitals allowed.")
 
     collaborator = models.ForeignKey(Collaborator)
     sample_type = models.ForeignKey(SampleType)
@@ -418,6 +447,11 @@ class Sample(StorablePhysicalObject, models.Model):
     notes = models.TextField(blank=True)
     extra_columns_json = models.TextField(blank=True)
 
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
+
     @property
     def barcode(self):
         return "SA:" + str(self.uid)
@@ -430,6 +464,18 @@ class Sample(StorablePhysicalObject, models.Model):
             error_msg = """UID should consist of five alphanumeric characters. Only capitals allowed."""
             raise(ValidationError({"uid": [error_msg, ]}))
         super(Sample, self).clean()
+
+    @classmethod
+    def get_by_uid(cls, uid):
+        s = list(cls.objects.filter(uid=barcode[3:]))
+        if len(s) == 1:
+            return s[0]
+        else:
+            raise(Exception("ERR: More than one or zero objects with given barcode"))
+
+    @classmethod
+    def get_by_barcode(cls, barcode):
+        return cls.get_by_uid(barcode[3:])
 
     @property
     def preferred_ordering(self):
@@ -472,8 +518,15 @@ class ExtractedCell(StorablePhysicalObject, IndexByGroup):
     protocol = models.ForeignKey(Protocol)
     notes = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by a count i.e. 10Y31_1")
 
     group_id_keyword = "sample__id"
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def group(self):
@@ -483,9 +536,12 @@ class ExtractedCell(StorablePhysicalObject, IndexByGroup):
     def barcode(self):
         return "EC:%s" % str(self.uid)
 
-    @property_verbose("UID")
-    def uid(self):
-        return "%s_%s" % (self.group.uid, self.index_by_group + 1)
+    def save(self):
+        """Stores UID on save"""
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+            self.uid = "%s_%s" % (self.group.uid, self.index_by_group + 1)
+        super(ExtractedCell, self).save()
 
     def __unicode__(self):
         return unicode(self.uid)
@@ -511,6 +567,13 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
                                         decimal_places=5)
     buffer = models.CharField(max_length=100)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by a count i.e. 10Y31_1")
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def group_id_keyword(self):
@@ -524,16 +587,15 @@ class ExtractedDNA(StorablePhysicalObject, IndexByGroup):
     def barcode(self):
         return "ED:" + str(self.uid)
 
-    @property_verbose("UID")
-    def uid(self):
-        return "%s_%s" % (self.sample.uid, self.index_by_group + 1)
-
     def save(self):
         """Saves and checks whether either Sample or ExtractedCell is provided.
         Not both, because this makes it easier to change the Sample on an
         ExtractedCell for example. Otherwise you would have to change both this
         object and the Extracted Cell."""
         if bool(self.sample) != bool(self.extracted_cell):
+            if self.pk is None:
+                self.index_by_group = self.calc_index_by_group()
+                self.uid = "%s_%s" % (self.group.uid, self.index_by_group + 1)
             super(ExtractedDNA, self).save()
         else:
             raise(Exception("You have to specify an Extracted cell or"
@@ -612,9 +674,16 @@ class SAGPlate(IndexByGroup):
     rt_mda = models.ForeignKey(RTMDA)
     qpcr = models.ForeignKey(QPCR)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by a a character [A-Z] i.e. 10Y31A")
 
     group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def sample(self):
@@ -628,10 +697,12 @@ class SAGPlate(IndexByGroup):
     def barcode(self):
         return "SP:" + str(self.uid)
 
-    @property_verbose("UID")
-    def uid(self):
-        return self.extracted_cell.sample.uid + \
-            self.index_to_naming_scheme()
+    def save(self):
+        """Stores UID on save"""
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+            self.uid = self.group.uid + self.index_to_naming_scheme()
+        super(SAGPlate, self).save()
 
     class Meta:
         verbose_name = "SAG plate"
@@ -661,9 +732,16 @@ class SAGPlateDilution(IndexByGroup):
     qpcr = models.ForeignKey(QPCR)
     notes = models.TextField(blank=True)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by a character or count [a-z0-9] i.e. 10Y31a")
 
     group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('a') + i) for i in range(26)] + range(10)  # [a-z0-9]
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def sample(self):
@@ -675,12 +753,14 @@ class SAGPlateDilution(IndexByGroup):
 
     @property
     def barcode(self):
-        return "SP:" + str(self.uid)
+        return "SD:" + str(self.uid)
 
-    @property_verbose("UID")
-    def uid(self):
-        return self.sag_plate.extracted_cell.sample.uid + \
-            self.index_to_naming_scheme()
+    def save(self):
+        """Stores UID on save"""
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+            self.uid = self.group.uid + self.index_to_naming_scheme()
+        super(SAGPlateDilution, self).save()
 
     class Meta:
         verbose_name = "SAG plate dilution"
@@ -704,9 +784,16 @@ class Metagenome(IndexByGroup):
     extracted_dna = models.ForeignKey(ExtractedDNA)
     diversity_report = models.CharField(max_length=100)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by A_X and count [01-99] i.e. 10Y31A_X01")
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def sample(self):
@@ -716,13 +803,15 @@ class Metagenome(IndexByGroup):
     def group(self):
         return self.extracted_dna.sample
 
-    @property_verbose("UID")
-    def uid(self):
-        return self.extracted_dna.sample.uid + "A_X" + \
-            self.index_to_naming_scheme()
-
     def __unicode__(self):
         return unicode(self.uid)
+
+    def save(self):
+        """Stores UID on save"""
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+            self.uid = self.group.uid + "A_X" + self.index_to_naming_scheme()
+        super(Metagenome, self).save()
 
     @property
     def preferred_ordering(self):
@@ -759,9 +848,16 @@ class Amplicon(StorablePhysicalObject, IndexByGroup):
     notes = models.TextField(blank=True)
     primer = models.ManyToManyField(Primer)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by A_Y and count [01-99] i.e. 10Y31A_Y01")
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def sample(self):
@@ -771,10 +867,16 @@ class Amplicon(StorablePhysicalObject, IndexByGroup):
     def group(self):
         return self.extracted_dna.sample
 
-    @property_verbose("UID")
-    def uid(self):
-        return self.extracted_dna.sample.uid + "A_Y" + \
-            self.index_to_naming_scheme()
+    @property
+    def barcode(self):
+        return "AM:" + str(self.uid)
+
+    def save(self):
+        """Stores UID on save"""
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+            self.uid = self.group.uid + "A_Y" + self.index_to_naming_scheme()
+        super(Amplicon, self).save()
 
     def __unicode__(self):
         return unicode(self.uid)
@@ -793,10 +895,21 @@ class SAG(models.Model):
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the SAGPlate or SAGPlateDilution UID followed by the well i.e. 10Y31A_O10")
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     def save(self):
         if sum((bool(self.sag_plate_dilution),
                 bool(self.sag_plate))) == 1:
+            if self.pk is None:
+                sag_plate_uid = self.sag_plate.uid if self.sag_plate else \
+                    self.sag_plate_dilution.uid
+                self.uid = "%s_%s" % (sag_uid, self.well)
             super(SAG, self).save()
         else:
             raise(Exception("You have to specify either a SAGPlate or a "
@@ -813,12 +926,6 @@ class SAG(models.Model):
     class Meta:
         verbose_name = "SAG"
         verbose_name_plural = "SAGs"
-
-    @property_verbose("UID")
-    def uid(self):
-        sag_uid = self.sag_plate.uid if self.sag_plate else \
-            self.sag_plate_dilution.uid
-        return "%s_%s" % (sag_uid, self.well)
 
     def __unicode__(self):
         return unicode(self.uid)
@@ -852,9 +959,16 @@ class DNAFromPureCulture(IndexByGroup):
                                         max_length=100, max_digits=10,
                                         decimal_places=5)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the sample UID followed by A_Z and count [01-99] i.e. 10Y31A_Z01")
 
     group_id_keyword = "extracted_dna__sample__id"
     character_list = ["%02d" % i for i in range(1, 100)]  # [01-99]
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def sample(self):
@@ -864,10 +978,12 @@ class DNAFromPureCulture(IndexByGroup):
     def group(self):
         return self.extracted_dna.sample
 
-    @property_verbose("UID")
-    def uid(self):
-        return self.extracted_dna.sample.uid + "A_Z" + \
-            self.index_to_naming_scheme()
+    def save(self):
+        """Stores UID on save"""
+        if self.pk is None:
+            self.index_by_group = self.calc_index_by_group()
+            self.uid = self.group.uid + "A_Z" + self.index_to_naming_scheme()
+        super(DNAFromPureCulture, self).save()
 
     def __unicode__(self):
         return unicode(self.uid)
@@ -902,9 +1018,15 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
 
     protocol = models.ForeignKey(Protocol)
     date = models.DateTimeField(default=timezone.now, blank=True)
+    uid = models.CharField("UID", max_length=30, unique=True, default="Automatically generated",
+        help_text="UID consists of the UID of the Amplicon, Metagenome, DNAFromPureCulture or SAG followed by a character [A-Z] i.e. AMZNGA_Y01A")
 
-    group_id_keyword = "extracted_cell__sample__id"
     character_list = [chr(ord('A') + i) for i in range(26)]  # [A-Z]
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     @property
     def dna_type(self):
@@ -934,16 +1056,18 @@ class DNALibrary(StorablePhysicalObject, IndexByGroup):
     def group(self):
         return self.amplicon or self.sag or self.pure_culture or self.metagenome
 
-    @property_verbose("UID")
-    def uid(self):
-        return self.group.uid + \
-            self.index_to_naming_scheme()
+    @property
+    def barcode(self):
+        return "DL:" + str(self.uid)
 
     def save(self):
         if sum((bool(self.amplicon),
                 bool(self.metagenome),
                 bool(self.sag),
                 bool(self.pure_culture))) == 1:
+            if self.pk is None:
+                self.index_by_group = self.calc_index_by_group()
+                self.uid = self.group.uid + self.index_to_naming_scheme()
             super(DNALibrary, self).save()
         else:
             raise(Exception("You have to specify a DNA source from either "
@@ -998,6 +1122,11 @@ class SequencingRun(models.Model):
     dna_library = models.ManyToManyField(DNALibrary)
     protocol = models.ForeignKey(Protocol)
     date = models.DateTimeField(default=timezone.now, blank=True)
+
+    objects = UIDManager()
+
+    def natural_key(self):
+        return self.uid
 
     def __unicode__(self):
         return unicode("%s") % (self.uid)

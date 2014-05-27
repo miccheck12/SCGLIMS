@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.utils.text import capfirst
 
-from lims.models import Container, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, ExtractedDNA, SAG
+from lims.models import Amplicon, Container, DNALibrary, Sample, SAGPlate, SAGPlateDilution, ExtractedCell, ExtractedDNA
 
 
 def index(request):
@@ -66,7 +66,7 @@ def generate_related_objects_tree(obj):
 def sample_tree_json(request, sample_id):
     sample = Sample.objects.get(pk=sample_id)
 
-    response_data = {'Sample':{}}
+    response_data = {'Sample': {}}
     response_data['Sample'][str(sample)] = generate_related_objects_tree(sample)
 
     return render(request, 'lims/sampletree.html',
@@ -78,27 +78,23 @@ def barcode_index(request):
 
 
 def barcode_search(request, barcode):
+    #try:
     barcode_model = {
+        "AM": Amplicon,
         "SA": Sample,
         "CO": Container,
         "EC": ExtractedCell,
         "ED": ExtractedDNA,
-        "SP": SAGPlate if barcode[-1].isupper() else SAGPlateDilution,
+        "SP": SAGPlate,
+        "SD": SAGPlateDilution,
+        "DL": DNALibrary,
     }[barcode[:2]]
+    #except KeyError:
+    #    raise Http404
 
-    if barcode.startswith("SA:"):
-        s = list(barcode_model.objects.filter(uid=barcode[3:]))
-        if len(s) == 1:
-            return default_object_table(Sample)(request, s[0].id)
-        else:
-            print("ERR: More than one or zero objects with given barcode", file=sys.stderr)
-    elif barcode.startswith("CO:"):
+    if barcode.startswith("CO:"):
         c = Container.objects.get(pk=int(barcode[3:]))
-        return default_object_table(Container)(request, c.id)
+        return default_object_table(barcode_model)(request, c.id)
     else:
-        s = list(barcode_model.objects.filter(uid=barcode[3:]))
-        if len(s) == 1:
-            return default_object_table(Sample)(request, s[0].id)
-        else:
-            print("ERR: More than one or zero objects with given barcode", file=sys.stderr)
-    raise Http404
+        o = barcode_model.objects.get(uid=barcode[3:])
+        return default_object_table(barcode_model)(request, o.id)
