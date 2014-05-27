@@ -8,17 +8,24 @@ SCGLIMS
 SCGLIMS is a Single Cell Genomics Lab Information Management System developed
 for the `Ettema Lab`_ by `BILS`_.
 
-The database implements the workflow of the Ettema Lab:
+This documentation has the following sections:
 
-.. image:: http://raw.githubusercontent.com/BILS/SCGLIMS/master/docs/images/flowchartlab.png
+:doc:`pipeline_design`
+    Describes the workflow at the `Ettema Lab`_
+:doc:`database_design`
+    Describes how the workflow has been implemented in the database
+:doc:`naming_scheme`
+    The naming scheme for barcodes and UID for objects in the database
+:doc:`user_guide`
+    A user guide for users of the system
+:doc:`installation`
+    How to install the LIMS
+:doc:`developer_guide`
+    A guide for developers
 
-If your lab has a similar workflow you might be able to use the SCGLIMS as is.
-Otherwise an amout of tweaking might be required in which case we would
-recommend forking the repository and only using certain elements.
+Other links:
 
-
-.. * Documentation: Not yet available
-
+* Documentation: `<http://scglims.rtfd.org>`_
 * Demo: `<http://bit.ly/scglims-heroku>`_ (for admin user/pass inodb)
 * Presentation: `<http://bit.ly/limstalk>`_
 * GitHub: `<https://github.com/BILS/SCGLIMS/>`_
@@ -29,72 +36,22 @@ recommend forking the repository and only using certain elements.
 .. _`Ettema Lab`: http://ettemalab.org
 .. _`BILS`: http://bils.se
 
-Requirements
---------------
-
-* Python 2.7+
-* Django 1.6.1
-* Local: https://github.com/BILS/SCGLIMS/blob/master/lims_project/requirements/local.txt
-* Development: https://github.com/BILS/SCGLIMS/blob/master/lims_project/requirements/development.txt
-
-Installation
---------------
-
-Clone the repository to your computer:
-
-::
-    
-    git clone https://github.com/BILS/SCGLIMS
-
-Local installation:
-
-::
-    
-    pip install -r lims_project/requirements/local.txt
-
-
-Running SCGLIMS
-----------------
-
-Locally
-********
-
-Without example data:
-
-::
-        
-    cd lims_project
-    python manage.py syncdb --settings=lims_project.settings.local && \
-    python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
-
-With example data:
- 
-::
-     
-    cd lims_project
-    python manage.py syncdb --settings=lims_project.settings.local && \
-    python manage.py loaddata example --settings=lims_project.settings.local && \
-    python manage.py runserver 127.0.0.1:8000 --settings=lims_project.settings.local
-
-
-Contribute
---------------
-
-Contributions are greatly appreciated, please read the `contribution instructions`_.
-
-.. _`contribution instructions`: https://github.com/BILS/SCGLIMS/blob/master/CONTRIBUTORS.md
-
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   pipeline_design
+   database_design
+   naming_scheme
+   user_guide
+   installation
+   developer_guide
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+.. Indices and tables
+   ==================
+   
+   * :ref:`genindex`
+   * :ref:`modindex`
+   * :ref:`search`
