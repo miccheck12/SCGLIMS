@@ -306,6 +306,7 @@ class MetagenomeAdmin(admin.ModelAdmin):
         'extracted_dna',
         'diversity_report',
     ]
+    readonly_fields = ('index_by_group', 'uid')
 admin.site.register(Metagenome, MetagenomeAdmin)
 
 

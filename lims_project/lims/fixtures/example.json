@@ -538,7 +538,8 @@
     "pk": 1, 
     "model": "lims.extractedcell", 
     "fields": {
-        "sample": 1, 
+        "sample": ["11A11"], 
+        "uid": "11A11_1",
         "index_by_group": 0, 
         "protocol": 1
     }
@@ -547,7 +548,8 @@
     "pk": 2, 
     "model": "lims.extractedcell", 
     "fields": {
-        "sample": 2, 
+        "sample": ["22B22"], 
+        "uid": "22B22_1",
         "index_by_group": 0, 
         "protocol": 1
     }
@@ -556,7 +558,8 @@
     "pk": 3, 
     "model": "lims.extractedcell", 
     "fields": {
-        "sample": 2, 
+        "sample": ["22B22"], 
+        "uid": "22B22_2",
         "index_by_group": 1, 
         "protocol": 1
     }
@@ -565,7 +568,8 @@
     "pk": 4, 
     "model": "lims.extractedcell", 
     "fields": {
-        "sample": 7, 
+        "sample": ["AHYEH"],
+        "uid": "AHYEH_1",
         "index_by_group": 0, 
         "protocol": 1
     }
@@ -574,7 +578,8 @@
     "pk": 1, 
     "model": "lims.extracteddna", 
     "fields": {
-        "sample": 3, 
+        "sample": ["ABCDE"], 
+        "uid": "ABCDE_1",
         "index_by_group": 0, 
         "protocol": 1, 
         "concentration": 5,
@@ -585,7 +590,8 @@
     "pk": 2, 
     "model": "lims.extracteddna", 
     "fields": {
-        "sample": 4, 
+        "sample": ["BCDEF"], 
+        "uid": "BCDEF_1",
         "index_by_group": 0, 
         "protocol": 1, 
         "concentration": 5,
@@ -596,7 +602,8 @@
     "pk": 3, 
     "model": "lims.extracteddna", 
     "fields": {
-        "sample": 8, 
+        "sample": ["AMZNG"], 
+        "uid": "AMZNG_1",
         "index_by_group": 0, 
         "protocol": 1, 
         "concentration": 5,
@@ -607,7 +614,8 @@
     "pk": 4, 
     "model": "lims.extracteddna", 
     "fields": {
-        "sample": 9, 
+        "sample": ["VL4EV"], 
+        "uid": "VL4EV_1",
         "index_by_group": 0, 
         "protocol": 1, 
         "concentration": 5,
@@ -618,7 +626,8 @@
     "pk": 1, 
     "model": "lims.sagplate", 
     "fields": {
-        "extracted_cell": 1, 
+        "extracted_cell": ["11A11_1"], 
+        "uid": "11A11A",
         "index_by_group": 0, 
         "protocol": 1, 
         "apparatus_subdivision": 2,
@@ -631,7 +640,8 @@
     "pk": 2, 
     "model": "lims.sagplate", 
     "fields": {
-        "extracted_cell": 2, 
+        "extracted_cell": ["22B22_1"], 
+        "uid": "22B22A", 
         "index_by_group": 0, 
         "protocol": 1, 
         "apparatus_subdivision": 3,
@@ -644,7 +654,8 @@
     "pk": 3, 
     "model": "lims.sagplate", 
     "fields": {
-        "extracted_cell": 4, 
+        "extracted_cell": ["AHYEH_1"], 
+        "uid": "AHYEHA", 
         "index_by_group": 0, 
         "protocol": 1, 
         "apparatus_subdivision": 3,
@@ -657,7 +668,8 @@
     "pk": 1, 
     "model": "lims.sagplatedilution", 
     "fields": {
-        "sag_plate": 3,
+        "sag_plate": ["AHYEHA"],
+        "uid": ["AHYEHa"],
         "index_by_group": 0, 
         "dilution": "1:50",
         "apparatus_subdivision": 3,
@@ -668,7 +680,8 @@
     "pk": 2, 
     "model": "lims.sagplatedilution", 
     "fields": {
-        "sag_plate": 3,
+        "sag_plate": ["AHYEHA"],
+        "uid": ["AHYEHb"],
         "index_by_group": 1, 
         "dilution": "1:50",
         "apparatus_subdivision": 3,
@@ -717,7 +730,8 @@
     "pk": 1, 
     "model": "lims.metagenome", 
     "fields": {
-        "extracted_dna": 1,
+        "extracted_dna": ["ABCDE_1"],
+        "uid": "ABCDEA_X01",
         "index_by_group": 0, 
         "diversity_report": "report.txt"
     }
@@ -726,7 +740,8 @@
     "pk": 2, 
     "model": "lims.metagenome", 
     "fields": {
-        "extracted_dna": 2,
+        "extracted_dna": ["BCDEF_1"],
+        "uid": "BCDEFA_X01",
         "index_by_group": 0, 
         "diversity_report": "report.txt"
     }
@@ -735,7 +750,8 @@
     "pk": 1, 
     "model": "lims.amplicon", 
     "fields": {
-        "extracted_dna": 3,
+        "extracted_dna": ["AMZNG_1"],
+        "uid": "AMZNGA_Y01",
         "index_by_group": 0, 
         "diversity_report": "report.txt",
         "buffer": "the best one",
@@ -746,7 +762,8 @@
     "pk": 2, 
     "model": "lims.amplicon", 
     "fields": {
-        "extracted_dna": 4,
+        "extracted_dna": ["VL4EV_1"],
+        "uid": "VL4EVA_Y01",
         "index_by_group": 0, 
         "diversity_report": "report.txt",
         "buffer": "magic",
@@ -757,7 +774,8 @@
     "pk": 1, 
     "model": "lims.sag", 
     "fields": {
-        "sag_plate": 1,
+        "sag_plate": ["11A11A"],
+        "uid": "11A11A_O10",
         "well": "O10",
         "concentration": 5
     }
@@ -766,7 +784,8 @@
     "pk": 2, 
     "model": "lims.sag", 
     "fields": {
-        "sag_plate": 1,
+        "sag_plate": ["11A11A"],
+        "uid": "11A11A_N21",
         "well": "N21",
         "concentration": 5
     }
@@ -775,7 +794,8 @@
     "pk": 3, 
     "model": "lims.sag", 
     "fields": {
-        "sag_plate": 2,
+        "sag_plate": ["22B22A"],
+        "uid": "22B22A_I17",
         "well": "I17",
         "concentration": 5
     }
@@ -784,7 +804,8 @@
     "pk": 4, 
     "model": "lims.sag", 
     "fields": {
-        "sag_plate": 2,
+        "sag_plate": ["22B22A"],
+        "uid": "22B22A_B23",
         "well": "B23",
         "concentration": 5
     }
@@ -793,7 +814,8 @@
     "pk": 1,
     "model": "lims.dnafrompureculture", 
     "fields": {
-        "extracted_dna": 1,
+        "extracted_dna": ["ABCDE_1"],
+        "uid": "ABCDEA_Z01",
         "index_by_group": 0, 
         "concentration": 5
     }
@@ -802,7 +824,8 @@
     "pk": 2,
     "model": "lims.dnafrompureculture", 
     "fields": {
-        "extracted_dna": 2,
+        "extracted_dna": ["BCDEF_1"],
+        "uid": "BCDEFA_Z01",
         "index_by_group": 0, 
         "concentration": 5
     }
@@ -811,7 +834,8 @@
     "pk": 1,
     "model": "lims.dnalibrary", 
     "fields": {
-        "metagenome": 1,
+        "metagenome": ["ABCDEA_X01"],
+        "uid": "ABCDEA_X01A",
         "protocol": 1,
         "buffer": "no idea",
         "i7": "TAAGGCGA",
@@ -825,7 +849,8 @@
     "pk": 2,
     "model": "lims.dnalibrary", 
     "fields": {
-        "sag": 1,
+        "sag": ["11A11A_O10"],
+        "uid": "11A11A_O10A",
         "protocol": 1,
         "buffer": "no idea",
         "i7": "TAAGGCGA",
@@ -839,7 +864,8 @@
     "pk": 3,
     "model": "lims.dnalibrary", 
     "fields": {
-        "sag": 2,
+        "sag": ["11A11A_N21"],
+        "uid": "11A11A_N21A",
         "protocol": 1,
         "buffer": "no idea",
         "i7": "TAAGGCGA",
@@ -853,7 +879,8 @@
     "pk": 4,
     "model": "lims.dnalibrary", 
     "fields": {
-        "pure_culture": 1,
+        "pure_culture": ["ABCDEA_Z01"],
+        "uid": "ABCDEA_Z01A",
         "protocol": 1,
         "buffer": "no idea",
         "i7": "TAAGGCGA",
@@ -867,7 +894,8 @@
     "pk": 5,
     "model": "lims.dnalibrary", 
     "fields": {
-        "amplicon": 1,
+        "amplicon": ["AMZNGA_Y01"],
+        "uid": "AMZNGA_Y01A",
         "protocol": 1,
         "buffer": "no idea",
         "i7": "TAAGGCGA",

@@ -30,7 +30,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'django',
+        'NAME': 'django-dev',
         'USER': 'django',
         'PASSWORD': 'django',
         'HOST': 'localhost',
@@ -100,13 +100,13 @@ AUTH_LDAP_GROUP_TYPE = PosixGroupType()
 
 
 # Populate the Django user form the LDAP directory.
-AUTH_LDAP_USER_ATTR_MAP = {
-    "fulllname": "uid",
-}
-
-AUTH_LDAP_PROFILE_ATTR_MAP = {
-    "fullname": "uid",
-}
+#AUTH_LDAP_USER_ATTR_MAP = {
+#    "username": "uid",
+#}
+#
+#AUTH_LDAP_PROFILE_ATTR_MAP = {
+#    "username": "uid",
+#}
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_active": "cn=users,ou=group,dc=icm,dc=uu,dc=se",
