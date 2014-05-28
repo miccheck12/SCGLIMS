@@ -99,7 +99,7 @@ this example we used the ones from the previous step.
 
 Presentation
 ------------
-There's also a `presentation` of the system available that incorporates several
+There's also a `presentation`_ of the system available that incorporates several
 movies of how to use the system.
 
 .. _`presentation`: http://ino.pm/outreach/presentations/2014/03/lims-presentation/index.html#/
