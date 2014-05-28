@@ -47,6 +47,7 @@ Contents:
    user_guide
    installation
    developer_guide
+   issues
 
 
 .. Indices and tables
