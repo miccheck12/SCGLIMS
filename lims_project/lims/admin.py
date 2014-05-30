@@ -19,6 +19,8 @@ from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, S
 
 from lims.import_export_resources import SampleResource, ContainerResource
 
+from sh import lpr
+
 
 def generate_all_fields_admin(classname):
     """Generate an Admin class which adds all fields to list_display except for
@@ -48,6 +50,7 @@ def print_barcode(modeladmin, request, queryset):
             fields += (4 - len(fields)) * [""]
         out = btm.barcode.template.format(*fields)
         print(out, file=sys.stderr)
+        lpr("-P", btm.barcode.name, _in=out)
 print_barcode.short_description = "Print barcode"
 
 

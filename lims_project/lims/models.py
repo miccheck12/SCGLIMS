@@ -504,6 +504,7 @@ class Sample(StorablePhysicalObject, models.Model):
 
     @property
     def username(self):
+        ct = ContentType.objects.get_for_model(self.__class__)
         return LogEntry.objects.filter(content_type=ct).first().user.username
 
 
