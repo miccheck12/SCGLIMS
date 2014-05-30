@@ -660,6 +660,11 @@ class RTMDA(models.Model):
     def __unicode__(self):
         return unicode(self.report)
 
+    @property
+    def preferred_ordering(self):
+        """Returns an ordered list of attribute names"""
+        return [f.attname for f in self._meta.fields]
+
 
 class SAGPlate(IndexByGroup):
     """SAGPlate is not a Container because we want to enforce all the same
