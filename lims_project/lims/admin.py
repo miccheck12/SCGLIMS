@@ -19,7 +19,10 @@ from lims.models import Apparatus, ApparatusSubdivision, Collaborator, Sample, S
 
 from lims.import_export_resources import SampleResource, ContainerResource
 
-from sh import lpr
+try:
+    from sh import lpr
+except ImportError:
+    pass
 
 
 def generate_all_fields_admin(classname):
