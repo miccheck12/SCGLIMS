@@ -1,8 +1,10 @@
 from __future__ import print_function
+import sys
 
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry, DELETION
 from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import escape
@@ -33,6 +35,20 @@ def generate_all_fields_admin(classname):
 standard_models = [QPCR, RTMDA, Apparatus, ApparatusSubdivision, SampleLocation, SampleType, ContainerType, BarcodePrinter, BarcodeToModel]
 for model in standard_models:
     admin.site.register(model, generate_all_fields_admin(model))
+
+
+def print_barcode(modeladmin, request, queryset):
+    for q in queryset:
+        ct = ContentType.objects.get_for_model(queryset.model)
+        btm = BarcodeToModel.objects.get(content_type=ct)
+        fields = [getattr(q, f) for f in btm.barcode_fields.split()]
+        print("len: %d" % len(fields), file=sys.stderr)
+        # add extra fields if not enough fields are given
+        if len(fields) < 4:
+            fields += (4 - len(fields)) * [""]
+        out = btm.barcode.template.format(*fields)
+        print(out, file=sys.stderr)
+print_barcode.short_description = "Print barcode"
 
 
 class ContainerInline(generic.GenericTabularInline):
@@ -155,6 +171,7 @@ class SampleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     inlines = [
         ContainerInline,
     ]
+    actions = [print_barcode]
 
     #class Media:
     #    js = ('lims/admin_edit_button.js',)

@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.contrib.admin.models import LogEntry
 from django.template.defaultfilters import slugify
 
 
@@ -500,6 +501,10 @@ class Sample(StorablePhysicalObject, models.Model):
             'container',
             'date',
         ]
+
+    @property
+    def username(self):
+        return LogEntry.objects.filter(content_type=ct).first().user.username
 
 
 class Protocol(models.Model):
