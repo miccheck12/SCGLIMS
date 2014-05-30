@@ -39,7 +39,7 @@ class SampleResource(resources.ModelResource):
     #collaborator = fields.Field(attribute='collaborator', column_name='collaborator', widget=LIMSForeignKeyWidget(Collaborator))
 
     def before_import(self, dataset, dry_run):
-        nr_core_sample_cols = 18
+        nr_core_sample_cols = 17
         extra_column_data = []
 
         for row in dataset:

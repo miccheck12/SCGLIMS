@@ -1,3 +1,3 @@
 id,uid,collaborator,sample_type,sample_location,container,temperature,ph,salinity,depth,gps,shipping_method,storage_medium,date_received,date,biosafety_level,status,notes,extra_columns_json,add_as_many_columns_as_u_like,u_can_also_remove_columns_after_extra_columns_json,but_keep_order_of_columns
-,ALOHA,1,1,1,49,,,,,,,,2014-02-1 00:00:00,2014-03-01 00:00:00,,,,,extra1,extra2,extra3
-,ALOHB,1,1,1,50,,,,,,,,2014-02-1 00:00:00,2014-03-01 00:00:00,,,,,extra haha,extra hihi,riktigt kul
+,ALOHA,1,1,1,,,,,,,,2014-02-1 00:00:00,2014-03-01 00:00:00,,,,,extra1,extra2,extra3
+,ALOHB,1,1,1,,,,,,,,2014-02-1 00:00:00,2014-03-01 00:00:00,,,,,extra haha,extra hihi,riktigt kul
