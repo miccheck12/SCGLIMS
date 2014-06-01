@@ -9,8 +9,8 @@ SCGLIMS
   :target: https://coveralls.io/r/BILS/SCGLIMS?branch=master
 
 
-SCGLIMS is a Single Cell Genomics Lab Information Management System developed
-for the `Ettema Lab`_ by `BILS`_.
+SCGLIMS is a Lab Information Management System developed for the `Ettema Lab`_
+by `BILS`_.
 
 The database implements the workflow of the Ettema Lab:
 
