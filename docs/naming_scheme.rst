@@ -7,7 +7,7 @@ The constraints are:
 * Name should be informative: one should get an idea of where the gene/SAG comes from from its name.
 * Name should be concise: ideally, a gene name (which is the end product in a way) should be kept under 20 characters
 
-Quick guide::
+Slow guide::
 
     sample well asbly reserved
     _____  ___  _     _
