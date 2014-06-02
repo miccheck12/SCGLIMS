@@ -21,7 +21,7 @@ Otherwise an amout of tweaking might be required in which case we would
 recommend forking the repository and only using certain elements.
 
 
-* Documentation: `<http://scglims.rtfd.org>`_
+* Crappy Documentation: `<http://scglims.rtfd.org>`_
 * Demo: `<http://bit.ly/scglims-heroku>`_ (for admin user/pass inodb)
 * Presentation: `<http://bit.ly/limstalk>`_
 * GitHub: `<https://github.com/BILS/SCGLIMS/>`_
